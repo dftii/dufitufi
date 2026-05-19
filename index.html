@@ -316,6 +316,7 @@
     position: relative;
     z-index: 1;
     display: inline-block;
+    will-change: transform;
   }
   .word {
     display: inline-flex;
@@ -326,79 +327,6 @@
 
   .pressure-letter {
     display: inline-block;
-  }
-
-  .p-hole-btn {
-    position: fixed;
-    right: clamp(12px, 3vw, 22px);
-    bottom: clamp(12px, 3vh, 22px);
-    transform: none;
-    width: clamp(2rem, 8vw, 3rem);
-    height: clamp(2rem, 8vw, 3rem);
-    font-family: 'Montserrat', sans-serif;
-    font-weight: 900;
-    font-size: clamp(0.8rem, 3.5vw, 1.4rem);
-    color: #DD0099;
-    background: rgba(0, 0, 0, 0.55);
-    border: 1.5px solid rgba(221, 0, 153, 0.55);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    -webkit-tap-highlight-color: transparent;
-    user-select: none;
-    z-index: 3;
-    box-shadow: 0 0 14px rgba(221, 0, 153, 0.3);
-    transition: box-shadow 0.2s ease;
-  }
-
-  .p-hole-btn:active {
-    transform: scale(0.9);
-  }
-
-  .a-hole-btn {
-    position: absolute;
-    /* Posicionado dentro del triángulo de la segunda A */
-    top: 47%;
-    left: 87.5%;
-    width: clamp(0.5rem, 2vw, 1.1rem);
-    height: clamp(0.5rem, 2vw, 1.1rem);
-    background: transparent;
-    border: none;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    -webkit-tap-highlight-color: transparent;
-    user-select: none;
-    z-index: 3;
-    transition: transform 0.1s ease;
-    padding: 0;
-  }
-
-  .a-hole-btn .play-icon {
-    width: 0;
-    height: 0;
-    border-style: solid;
-    border-width: clamp(0.15rem, 0.6vw, 0.35rem) 0 clamp(0.15rem, 0.6vw, 0.35rem) clamp(0.25rem, 1vw, 0.55rem);
-    border-color: transparent transparent transparent rgba(180, 0, 120, 0.35);
-  }
-
-  .a-hole-btn .pause-icon {
-    display: flex;
-    gap: clamp(1px, 0.15vw, 2px);
-  }
-
-  .a-hole-btn .pause-icon span {
-    display: block;
-    width: clamp(1.5px, 0.25vw, 3px);
-    height: clamp(0.3rem, 1vw, 0.6rem);
-    background: rgba(180, 0, 120, 0.35);
-  }
-
-  .a-hole-btn:active {
-    transform: scale(0.9);
   }
 
 
@@ -1032,7 +960,8 @@
     const IS_MOBILE = navigator.maxTouchPoints > 0;
     const el = document.getElementById('pasta');
     const btn = document.getElementById('btn');
-    const bgRows = () => document.querySelectorAll('.bg-row');
+    let _bgRowsCache = null;
+    const bgRows = () => _bgRowsCache || (_bgRowsCache = document.querySelectorAll('.bg-row'));
     const colors = [
       '#FF0000','#FF4500','#FF8800','#FFCC00',
       '#AAFF00','#00FF88','#00FFFF','#0088FF',
@@ -1094,7 +1023,7 @@
       const bg = document.getElementById('bg-pasta');
       const word = 'dfti';
       const sep = '\u2003\u2003';
-      const repeatCount = 40;
+      const repeatCount = 30;
       const rows = Math.ceil(window.innerHeight / 38) + 4;
       const fxClasses = ['dfti-opt-glow','dfti-opt-chroma','dfti-opt-wave','dfti-opt-flip'];
       const frag = document.createDocumentFragment();
@@ -1478,32 +1407,48 @@
         cursor.y = mouse.y = r.top  + r.height / 2;
       });
 
+      // Caché de posiciones para evitar layout thrashing en cada frame
+      let spanCenters = [];
+      let elRect = { left: 0, top: 0, width: 1, height: 1 };
+
+      function cacheLayout() {
+        elRect = el.getBoundingClientRect();
+        spanCenters = spans.map(s => {
+          const b = s.getBoundingClientRect();
+          return { x: b.left + b.width / 2, y: b.top + b.height / 2 };
+        });
+      }
+
       function animate() {
         mouse.x += (cursor.x - mouse.x) / 15;
         mouse.y += (cursor.y - mouse.y) / 15;
 
-        const r   = el.getBoundingClientRect();
-        const max = r.width / 2 || 1;
+        const max = elRect.width / 2 || 1;
 
-        spans.forEach(span => {
-          const b = span.getBoundingClientRect();
-          const c = { x: b.left + b.width / 2, y: b.top + b.height / 2 };
+        for (let i = 0; i < spans.length; i++) {
+          const c = spanCenters[i];
+          if (!c) continue;
           const d = dist(mouse, c);
           const wght = Math.floor(attr(d, max, 100, 800));
           const wdth = Math.floor(attr(d, max, 5,  195));
           const ital = attr(d, max, 0, 1).toFixed(2);
-          span.style.fontVariationSettings = `'wght' ${wght}, 'wdth' ${wdth}, 'ital' ${ital}`;
-        });
+          spans[i].style.fontVariationSettings = `'wght' ${wght}, 'wdth' ${wdth}, 'ital' ${ital}`;
+        }
 
         requestAnimationFrame(animate);
       }
+
+      // Inicializar caché y refrescarla en resize y carga de fuentes
+      requestAnimationFrame(cacheLayout);
+      window.addEventListener('resize', cacheLayout);
+      document.fonts.ready.then(cacheLayout);
+
       // En móvil: touchmove ya actualiza cursor; orientación del dispositivo también lo mueve
       if (IS_MOBILE) {
         window.addEventListener('deviceorientation', e => {
-          const r = el.getBoundingClientRect();
-          if (!r.width) return;
-          cursor.x = r.left + r.width  / 2 + (e.gamma || 0) / 45 * r.width  / 2;
-          cursor.y = r.top  + r.height / 2 + ((e.beta  || 45) - 45) / 45 * r.height / 2;
+          if (!elRect.width) return;
+          cursor.x = elRect.left + elRect.width  / 2 + (e.gamma || 0) / 45 * elRect.width  / 2;
+          cursor.y = elRect.top  + elRect.height / 2 + ((e.beta  || 45) - 45) / 45 * elRect.height / 2;
         }, { passive: true });
       }
       animate();
@@ -1678,10 +1623,7 @@
       const l2b = new THREE.PointLight(0x0044FF, 2, 20);
       l2b.position.set(2, -1, 0); scene2.add(l2b);
 
-      const knot2 = new THREE.Mesh(
-        new THREE.TorusKnotGeometry(0.6, 0.18, 100, 12),
-        mat2
-      );
+      const knot2 = new THREE.Mesh(knot.geometry, mat2);
       scene2.add(knot2);
 
       (function loop2() {
