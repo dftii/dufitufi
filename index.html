@@ -1,0 +1,1496 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#DD0099">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta property="og:title" content="DuFiTuFi">
+<meta property="og:description" content="tú ya sabes 🍝">
+<meta property="og:type" content="website">
+<link rel="manifest" href="manifest.json">
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.175.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.175.0/examples/jsm/"
+  }
+}
+</script>
+<title>DuFiTuFi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@900&display=swap" rel="stylesheet">
+<style>
+  @font-face {
+    font-family: "Compressa VF";
+    src: url("https://res.cloudinary.com/dr6lvwubh/raw/upload/v1529908256/CompressaPRO-GX.woff2") format("woff2");
+    font-style: normal;
+    font-display: swap;
+  }
+
+  *, *::before, *::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  html, body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background-color: #000000;
+  }
+
+  body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2rem;
+    min-height: 100vh;
+    min-height: 100dvh;
+    position: relative;
+  }
+
+  .mystery-btn {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 900;
+    font-size: clamp(0.45rem, 1.8vw, 0.75rem);
+    color: #DD0099;
+    background: #000000;
+    border: 1px solid rgba(221, 0, 153, 0.4);
+    border-radius: 2rem;
+    padding: 0.35rem 0.9rem;
+    cursor: pointer;
+    letter-spacing: 0.08em;
+    position: absolute;
+    top: clamp(10px, 3vh, 22px);
+    left: 50%;
+    transform: translateX(-50%);
+    -webkit-tap-highlight-color: transparent;
+    white-space: nowrap;
+    user-select: none;
+    z-index: 2;
+    box-shadow: 0 0 10px rgba(200, 0, 140, 0.2);
+  }
+
+  .word {
+    font-family: "Compressa VF", 'Montserrat', sans-serif;
+    font-weight: 100;
+    font-size: clamp(3.5rem, 22vw, 12rem);
+    letter-spacing: 0;
+    color: #DD0099;
+    user-select: none;
+    -webkit-user-select: none;
+    text-shadow:
+      0 0 15px rgba(200, 0, 140, 0.4),
+      0 0 35px rgba(180, 0, 120, 0.25),
+      0 0 60px rgba(160, 0, 110, 0.15);
+  }
+
+  @keyframes hueCycle {
+    to { filter: hue-rotate(360deg); }
+  }
+
+  .btn {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 900;
+    font-size: clamp(1.2rem, 6vw, 2rem);
+    color: #DD0099;
+    background: transparent;
+    border: 2px solid #DD0099;
+    border-radius: 50%;
+    width: clamp(2.8rem, 12vw, 4rem);
+    height: clamp(2.8rem, 12vw, 4rem);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    padding-bottom: 0.05em;
+    cursor: pointer;
+    box-shadow:
+      0 0 10px rgba(200, 0, 140, 0.3),
+      0 0 25px rgba(180, 0, 120, 0.15);
+    -webkit-tap-highlight-color: transparent;
+    transition: transform 0.1s ease;
+    margin-top: 1rem;
+    animation: hueCycle 4s linear infinite;
+  }
+
+  .btn:active {
+    transform: scale(0.93);
+  }
+
+  .overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.92);
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 1.5rem;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 0.3s ease, visibility 0s 0.3s;
+  }
+
+  .overlay.visible {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transition: opacity 0.3s ease;
+  }
+
+  @starting-style {
+    .overlay.visible { opacity: 0; }
+  }
+
+  .modal {
+    max-width: 420px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 1.1rem;
+    max-height: 85vh;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    opacity: 0;
+    transform: translateY(16px) scale(0.94);
+    transition: transform 0.4s cubic-bezier(0.34, 1.2, 0.64, 1), opacity 0.3s ease;
+  }
+
+  .modal::-webkit-scrollbar { display: none; }
+
+  .overlay.visible .modal {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+
+  @starting-style {
+    .overlay.visible .modal {
+      opacity: 0;
+      transform: translateY(16px) scale(0.94);
+    }
+  }
+
+  .modal-title {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 900;
+    font-size: clamp(1rem, 5vw, 1.4rem);
+    color: #DD0099;
+    text-align: center;
+    letter-spacing: 0.05em;
+    text-shadow:
+      0 0 15px rgba(200, 0, 140, 0.4),
+      0 0 35px rgba(180, 0, 120, 0.2);
+    margin-bottom: 0.5rem;
+  }
+
+  .meaning {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 900;
+    font-size: clamp(0.7rem, 3.2vw, 0.9rem);
+    color: rgba(220, 220, 220, 0.75);
+    line-height: 1.6;
+    border-left: 2px solid rgba(180, 0, 120, 0.5);
+    padding-left: 0.9rem;
+    letter-spacing: 0.01em;
+  }
+
+  .meaning span {
+    color: #DD0099;
+    text-shadow: 0 0 10px rgba(200, 0, 140, 0.35);
+  }
+
+  .dufi-message {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 900;
+    font-size: clamp(1.1rem, 5.5vw, 1.6rem);
+    color: rgba(220, 220, 220, 0.8);
+    text-align: center;
+    letter-spacing: 0.04em;
+    line-height: 1.5;
+  }
+
+  .dufi-message span {
+    color: #DD0099;
+    text-shadow:
+      0 0 15px rgba(200, 0, 140, 0.4),
+      0 0 35px rgba(180, 0, 120, 0.2);
+  }
+
+  .close-btn {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 900;
+    font-size: clamp(0.7rem, 3vw, 0.85rem);
+    color: #DD0099;
+    background: transparent;
+    border: 1px solid rgba(180, 0, 120, 0.4);
+    border-radius: 2rem;
+    padding: 0.5rem 1.8rem;
+    cursor: pointer;
+    letter-spacing: 0.1em;
+    margin-top: 0.5rem;
+    align-self: center;
+    -webkit-tap-highlight-color: transparent;
+    transition: transform 0.1s ease;
+  }
+
+  .close-btn:active { transform: scale(0.93); }
+
+  /* ── Starfield canvas ── */
+  #stars-canvas {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  /* ── Urban repeated background ── */
+  .bg-pasta {
+    position: fixed;
+    inset: 0;
+    z-index: 1;
+    overflow: hidden;
+    pointer-events: none;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    contain: layout style;
+  }
+
+  .bg-row {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 900;
+    font-size: clamp(1.4rem, 4.5vw, 2.8rem);
+    white-space: nowrap;
+    color: rgba(221, 0, 153, 0.07);
+    letter-spacing: 0.12em;
+    line-height: 1.7;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  .bg-row:nth-child(even) {
+    transform: translateX(-3rem);
+    color: rgba(221, 0, 153, 0.05);
+  }
+
+  /* ── Efectos ópticos aleatorios en dfti de fondo ── */
+  @keyframes dftiGlow {
+    0%, 100% { color: inherit; text-shadow: none; }
+    50% { color: rgba(221,0,153,0.13); text-shadow: 0 0 6px rgba(221,0,153,0.18); }
+  }
+  @keyframes dftiChroma {
+    0%, 100% { text-shadow: none; }
+    50% { text-shadow: -1px 0 rgba(0,200,255,0.13), 1px 0 rgba(255,0,120,0.13); }
+  }
+  @keyframes dftiWave {
+    0%, 100% { transform: translateY(0) scaleX(1); }
+    33%  { transform: translateY(-2px) scaleX(1.02); }
+    66%  { transform: translateY(1px) scaleX(0.99); }
+  }
+  @keyframes dftiFlip {
+    0%, 80%, 100% { transform: scaleX(1); opacity: 1; }
+    88%  { transform: scaleX(-1); opacity: 0.35; }
+  }
+  .dfti-opt { display: inline-block; }
+  .dfti-opt-glow   { animation: dftiGlow   var(--dur,9s)  var(--del,0s) ease-in-out infinite; }
+  .dfti-opt-chroma { animation: dftiChroma var(--dur,11s) var(--del,0s) ease-in-out infinite; }
+  .dfti-opt-wave   { animation: dftiWave   var(--dur,8s)  var(--del,0s) ease-in-out infinite; }
+  .dfti-opt-flip   { animation: dftiFlip   var(--dur,13s) var(--del,0s) ease-in-out infinite; }
+
+  /* Sin animaciones dfti en dispositivos táctiles */
+  @media (hover: none) {
+    .dfti-opt { animation: none !important; }
+  }
+
+  /* Elementos principales encima del fondo */
+  .word-container {
+    position: relative;
+    z-index: 1;
+    display: inline-block;
+  }
+  .word {
+    display: inline-flex;
+    align-items: baseline;
+    position: relative;
+    z-index: 1;
+  }
+
+  .pressure-letter {
+    display: inline-block;
+  }
+
+  .p-hole-btn {
+    position: fixed;
+    right: clamp(12px, 3vw, 22px);
+    bottom: clamp(12px, 3vh, 22px);
+    transform: none;
+    width: clamp(2rem, 8vw, 3rem);
+    height: clamp(2rem, 8vw, 3rem);
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 900;
+    font-size: clamp(0.8rem, 3.5vw, 1.4rem);
+    color: #DD0099;
+    background: rgba(0, 0, 0, 0.55);
+    border: 1.5px solid rgba(221, 0, 153, 0.55);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+    z-index: 3;
+    box-shadow: 0 0 14px rgba(221, 0, 153, 0.3);
+    transition: box-shadow 0.2s ease;
+  }
+
+  .p-hole-btn:active {
+    transform: scale(0.9);
+  }
+
+  .a-hole-btn {
+    position: absolute;
+    /* Posicionado dentro del triángulo de la segunda A */
+    top: 47%;
+    left: 87.5%;
+    width: clamp(0.5rem, 2vw, 1.1rem);
+    height: clamp(0.5rem, 2vw, 1.1rem);
+    background: transparent;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+    z-index: 3;
+    transition: transform 0.1s ease;
+    padding: 0;
+  }
+
+  .a-hole-btn .play-icon {
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: clamp(0.15rem, 0.6vw, 0.35rem) 0 clamp(0.15rem, 0.6vw, 0.35rem) clamp(0.25rem, 1vw, 0.55rem);
+    border-color: transparent transparent transparent rgba(180, 0, 120, 0.35);
+  }
+
+  .a-hole-btn .pause-icon {
+    display: flex;
+    gap: clamp(1px, 0.15vw, 2px);
+  }
+
+  .a-hole-btn .pause-icon span {
+    display: block;
+    width: clamp(1.5px, 0.25vw, 3px);
+    height: clamp(0.3rem, 1vw, 0.6rem);
+    background: rgba(180, 0, 120, 0.35);
+  }
+
+  .a-hole-btn:active {
+    transform: scale(0.9);
+  }
+
+
+  .latin-text {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 900;
+    font-size: clamp(0.65rem, 2.8vw, 0.85rem);
+    color: rgba(220, 220, 220, 0.7);
+    line-height: 1.8;
+    font-style: italic;
+    text-align: center;
+    letter-spacing: 0.01em;
+  }
+
+  .latin-text span {
+    color: #DD0099;
+    text-shadow: 0 0 10px rgba(200, 0, 140, 0.35);
+    font-style: normal;
+  }
+
+  .btn {
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ── Mute button ── */
+  .vol-ctrl {
+    position: fixed;
+    top: clamp(10px, 2.5vh, 18px);
+    left: clamp(10px, 2.5vw, 18px);
+    z-index: 150;
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    background: #000000;
+    border: 1px solid rgba(221, 0, 153, 0.4);
+    border-radius: 2rem;
+    padding: 0.4rem 0.9rem;
+    box-shadow: 0 0 10px rgba(200, 0, 140, 0.2);
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .vol-ctrl svg {
+    width: clamp(0.85rem, 2vw, 1rem);
+    height: clamp(0.85rem, 2vw, 1rem);
+    fill: #DD0099;
+    flex-shrink: 0;
+    cursor: pointer;
+    transition: opacity 0.15s ease;
+  }
+  .vol-ctrl svg:active { opacity: 0.6; }
+
+  #volSlider {
+    -webkit-appearance: none;
+    appearance: none;
+    width: clamp(55px, 12vw, 90px);
+    height: 3px;
+    border-radius: 2px;
+    outline: none;
+    cursor: pointer;
+    background: linear-gradient(to right, #DD0099 var(--vol-pct, 50%), rgba(221,0,153,0.2) var(--vol-pct, 50%));
+  }
+  #volSlider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 13px;
+    height: 13px;
+    border-radius: 50%;
+    background: #DD0099;
+    box-shadow: 0 0 7px rgba(221,0,153,0.75);
+    cursor: pointer;
+  }
+  #volSlider::-moz-range-thumb {
+    width: 13px;
+    height: 13px;
+    border-radius: 50%;
+    background: #DD0099;
+    box-shadow: 0 0 7px rgba(221,0,153,0.75);
+    border: none;
+    cursor: pointer;
+  }
+  #volSlider::-moz-range-track {
+    background: rgba(221,0,153,0.2);
+    border-radius: 2px;
+    height: 3px;
+  }
+  #volSlider::-moz-range-progress {
+    background: #DD0099;
+    border-radius: 2px;
+    height: 3px;
+  }
+
+  /* ── Splash screen ── */
+  .splash {
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    background: rgba(0, 0, 0, 0.72);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+  }
+
+  .splash.hidden {
+    display: none;
+  }
+
+  .splash-text {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 900;
+    font-size: clamp(0.9rem, 4vw, 1.4rem);
+    color: rgba(255, 255, 255, 0.85);
+    letter-spacing: 0.18em;
+    text-align: center;
+    user-select: none;
+    pointer-events: none;
+    text-shadow: 0 0 20px rgba(255, 255, 255, 0.25);
+    animation: splashPulse 2s ease-in-out infinite;
+  }
+
+  @keyframes splashPulse {
+    0%, 100% { opacity: 0.85; }
+    50%       { opacity: 0.35; }
+  }
+
+  .splash-star {
+    position: absolute;
+    color: rgba(255, 255, 255, 0.65);
+    font-size: 0.55rem;
+    user-select: none;
+    pointer-events: none;
+  }
+
+  /* ── Cursor trail ── */
+  .trail-dot {
+    position: fixed;
+    border-radius: 50%;
+    background: #DD0099;
+    pointer-events: none;
+    z-index: 9999;
+    transform: translate(-50%, -50%);
+    animation: trailFade 0.5s ease forwards;
+  }
+  @keyframes trailFade {
+    0%   { opacity: 0.75; transform: translate(-50%, -50%) scale(1); }
+    100% { opacity: 0;    transform: translate(-50%, -50%) scale(0.1); }
+  }
+
+  /* ── Click ripple ── */
+  .ripple {
+    position: fixed;
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    border: 1.5px solid #DD0099;
+    box-shadow: 0 0 8px rgba(221,0,153,0.4);
+    pointer-events: none;
+    z-index: 9998;
+    transform: translate(-50%, -50%) scale(0);
+    opacity: 0.85;
+    animation: rippleOut 0.65s ease-out forwards;
+  }
+  @keyframes rippleOut {
+    0%   { transform: translate(-50%, -50%) scale(0); opacity: 0.85; }
+    100% { transform: translate(-50%, -50%) scale(2.8); opacity: 0; }
+  }
+
+  /* ── Frase aleatoria ── */
+  .pasta-phrase {
+    position: relative;
+    z-index: 2;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 900;
+    font-size: clamp(0.55rem, 2.2vw, 0.75rem);
+    color: rgba(221, 0, 153, 0.55);
+    letter-spacing: 0.14em;
+    text-align: center;
+    user-select: none;
+    margin-top: -1.5rem;
+    opacity: 0;
+    animation: phraseIn 1.2s 0.6s ease forwards;
+  }
+  @keyframes phraseIn {
+    from { opacity: 0; transform: translateY(5px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── Modales easter egg y secreto ── */
+  .easter-title {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 900;
+    font-size: clamp(2rem, 10vw, 3.5rem);
+    color: #DD0099;
+    text-align: center;
+    letter-spacing: 0.06em;
+    animation: easterGlow 0.7s ease infinite alternate;
+  }
+  @keyframes easterGlow {
+    from { text-shadow: 0 0 20px rgba(200,0,140,0.5), 0 0 50px rgba(180,0,120,0.3); }
+    to   { text-shadow: 0 0 55px rgba(200,0,140,0.95), 0 0 110px rgba(180,0,120,0.6); }
+  }
+  .easter-sub {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 900;
+    font-size: clamp(0.65rem, 2.8vw, 0.85rem);
+    color: rgba(220,220,220,0.65);
+    letter-spacing: 0.1em;
+    text-align: center;
+  }
+  .secret-msg {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 900;
+    font-size: clamp(0.9rem, 4.5vw, 1.3rem);
+    color: rgba(220,220,220,0.8);
+    letter-spacing: 0.05em;
+    text-align: center;
+    line-height: 1.7;
+  }
+  .secret-msg span {
+    color: #DD0099;
+    text-shadow: 0 0 15px rgba(200,0,140,0.5);
+  }
+
+  /* ── Cursor oculto (el trail ES el cursor) ── */
+  @media (pointer: fine) {
+    * { cursor: none !important; }
+  }
+
+  /* ── Animación de entrada de PASTA ── */
+  #pasta { opacity: 0; }
+  #pasta.entering {
+    animation: pastaIn 1s cubic-bezier(0.34, 1.2, 0.64, 1) forwards;
+  }
+  @keyframes pastaIn {
+    from { opacity: 0; transform: scale(1.28); filter: blur(14px); }
+    to   { opacity: 1; transform: scale(1);    filter: blur(0); }
+  }
+
+  /* ── View Transitions ── */
+  @keyframes vt-out { to { opacity: 0; filter: blur(18px); } }
+  @keyframes konami-flash { 0% { opacity:1; transform:scale(1); } 100% { opacity:0; transform:scale(1.6); } }
+  @keyframes vt-in  { from { opacity: 0; } to { opacity: 1; } }
+  ::view-transition-old(root) { animation: vt-out 0.45s ease forwards; }
+  ::view-transition-new(root) { animation: vt-in  0.45s ease forwards; }
+
+  /* ── Botón compartir ── */
+  .share-btn {
+    position: fixed;
+    top: clamp(10px, 2.5vh, 18px);
+    right: clamp(10px, 2.5vw, 18px);
+    z-index: 150;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 900;
+    font-size: clamp(0.55rem, 2vw, 0.8rem);
+    color: #DD0099;
+    background: #000000;
+    border: 1px solid rgba(221, 0, 153, 0.4);
+    border-radius: 2rem;
+    padding: 0.4rem 0.9rem;
+    letter-spacing: 0.06em;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    -webkit-tap-highlight-color: transparent;
+    box-shadow: 0 0 10px rgba(200, 0, 140, 0.2);
+    user-select: none;
+    transition: opacity 0.1s ease;
+  }
+  .share-btn:active { opacity: 0.7; }
+  .share-btn svg { width: 1em; height: 1em; fill: #DD0099; flex-shrink: 0; }
+
+  /* ── Toast ── */
+  .toast {
+    position: fixed;
+    bottom: clamp(50px, 7vh, 70px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.88);
+    border: 1px solid rgba(221, 0, 153, 0.45);
+    color: #DD0099;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 900;
+    font-size: clamp(0.55rem, 2.2vw, 0.72rem);
+    letter-spacing: 0.14em;
+    padding: 0.4rem 1.2rem;
+    border-radius: 2rem;
+    z-index: 9999;
+    white-space: nowrap;
+    pointer-events: none;
+    animation: toastIn 0.3s ease, toastOut 0.3s 1.7s ease forwards;
+  }
+  @keyframes toastIn {
+    from { opacity: 0; transform: translateX(-50%) translateY(8px); }
+    to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+  }
+  @keyframes toastOut {
+    to { opacity: 0; transform: translateX(-50%) translateY(-6px); }
+  }
+
+  /* ── text-wrap balance en textos modales ── */
+  .meaning, .modal-title, .dufi-message, .latin-text,
+  .easter-sub, .secret-msg, .splash-text { text-wrap: balance; }
+
+  /* ── Three.js pasta 3D (esquina) ── */
+  #pasta-3d {
+    position: fixed;
+    top: clamp(10px, 4vh, 36px);
+    right: clamp(10px, 4vw, 36px);
+    width: clamp(90px, 16vw, 140px);
+    height: clamp(90px, 16vw, 140px);
+    z-index: 2;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 1.4s ease 0.5s;
+    filter: drop-shadow(0 0 18px rgba(221,0,153,0.6));
+  }
+  #pasta-3d.visible { opacity: 1; }
+
+  #pasta-3d-bottom {
+    position: fixed;
+    bottom: clamp(10px, 4vh, 36px);
+    left: clamp(10px, 4vw, 36px);
+    width: clamp(90px, 16vw, 140px);
+    height: clamp(90px, 16vw, 140px);
+    z-index: 2;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 1.4s ease 0.5s;
+    filter: drop-shadow(0 0 18px rgba(221,0,153,0.6));
+  }
+  #pasta-3d-bottom.visible { opacity: 1; }
+
+  /* ── Stagger de entrada (Framer Motion style) ── */
+  .stagger-item {
+    opacity: 0;
+    transform: translateY(12px);
+    transition: opacity 0.5s ease, transform 0.55s cubic-bezier(0.34, 1.2, 0.64, 1);
+  }
+  .stagger-item.stagger-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+</style>
+</head>
+<body>
+
+  <canvas id="stars-canvas"></canvas>
+
+  <!-- Urban repeated PASTA background -->
+  <div class="bg-pasta" id="bg-pasta"></div>
+
+  <div class="word-container">
+    <span class="word" id="pasta">DUFITUFI</span>
+  </div>
+  <button class="p-hole-btn" onclick="openModal('latin')">?</button>
+  <div class="pasta-phrase" id="pasta-phrase"></div>
+  <button class="btn stagger-item" id="btn" onclick="toggle()">✦</button>
+
+  <!-- OVERLAY PASTA -->
+  <div class="overlay" id="overlay-pasta" onclick="handleClick(event,'pasta')">
+    <div class="modal" style="align-items:center; justify-content:center;">
+      <div class="modal-title">De Dracone</div>
+      <div class="latin-text">
+        <span>Ignifer</span> in caelo volat bestia magna,<br>
+        squamis auro tecta, voce tonat agna.<br><br>
+        <span>Flammas</span> ex ore fundit in noctem atram,<br>
+        terret mortales, vincit omnem matram.<br><br>
+        <span>Alis</span> vastis umbram fundit per terras,<br>
+        oculos ardet ut stellae in serras.<br><br>
+        <span>Nemo</span> audet contra draconem stare,<br>
+        nisi fortis heros gladio volare.
+      </div>
+      <button class="close-btn" onclick="closeModal('pasta')">CERRAR</button>
+    </div>
+  </div>
+
+  <!-- OVERLAY DUFI -->
+  <div class="overlay" id="overlay-dufi" onclick="handleClick(event,'dufi')">
+    <div class="modal" style="align-items:center; justify-content:center; min-height:30vh;">
+      <div class="dufi-message"><span>¿PASTA?</span></div>
+      <button class="close-btn" onclick="closeModal('dufi')">CERRAR</button>
+    </div>
+  </div>
+
+  <!-- OVERLAY LATIN -->
+  <div class="overlay" id="overlay-latin" onclick="handleClick(event,'latin')">
+    <div class="modal" style="align-items:center; justify-content:center;">
+      <div class="modal-title">De Dracone</div>
+      <div class="latin-text">
+        <span>Ignifer</span> in caelo volat bestia magna,<br>
+        squamis auro tecta, voce tonat agna.<br><br>
+        <span>Flammas</span> ex ore fundit in noctem atram,<br>
+        terret mortales, vincit omnem matram.<br><br>
+        <span>Alis</span> vastis umbram fundit per terras,<br>
+        oculos ardet ut stellae in serras.<br><br>
+        <span>Nemo</span> audet contra draconem stare,<br>
+        nisi fortis heros gladio volare.
+      </div>
+      <button class="close-btn" onclick="closeModal('latin')">CERRAR</button>
+    </div>
+  </div>
+
+  <!-- OVERLAY EASTER EGG -->
+  <div class="overlay" id="overlay-easter" onclick="handleClick(event,'easter')">
+    <div class="modal" style="align-items:center; justify-content:center; gap:0.8rem;">
+      <div class="easter-title">🍝 PASTA 🍝</div>
+      <div class="easter-sub">has encontrado el secreto</div>
+      <button class="close-btn" onclick="closeModal('easter')">CERRAR</button>
+    </div>
+  </div>
+
+  <!-- OVERLAY SECRETO -->
+  <div class="overlay" id="overlay-secret" onclick="handleClick(event,'secret')">
+    <div class="modal" style="align-items:center; justify-content:center; gap:0.8rem;">
+      <div class="secret-msg">eres de los nuestros,<br><span>ya sabes lo que hay</span></div>
+      <button class="close-btn" onclick="closeModal('secret')">CERRAR</button>
+    </div>
+  </div>
+
+  <!-- Control de volumen arriba izquierda -->
+  <div class="vol-ctrl">
+    <svg id="volIcon" viewBox="0 0 24 24" onclick="toggleVolMute()" xmlns="http://www.w3.org/2000/svg">
+      <path id="volIconPath" d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
+    </svg>
+    <input type="range" id="volSlider" min="0" max="100" value="50" oninput="setVolume(this.value)">
+  </div>
+
+  <!-- Splash screen -->
+  <div class="splash" id="splash" onclick="enterPage()">
+    <div class="splash-text">dale click para entrar</div>
+  </div>
+
+  <canvas id="pasta-3d"></canvas>
+  <canvas id="pasta-3d-bottom"></canvas>
+
+  <audio id="audio-player" src="audio/Myke Towers - HORA CERO (Instrumental).mp3" preload="auto"></audio>
+
+  <script>
+    const IS_MOBILE = navigator.maxTouchPoints > 0;
+    const el = document.getElementById('pasta');
+    const btn = document.getElementById('btn');
+    const bgRows = () => document.querySelectorAll('.bg-row');
+    const colors = [
+      '#FF0000','#FF4500','#FF8800','#FFCC00',
+      '#AAFF00','#00FF88','#00FFFF','#0088FF',
+      '#4400FF','#AA00FF','#FF00CC','#FF0066'
+    ];
+    let frame = null, i = 0, active = false;
+
+    function rainbow() {
+      const c = colors[i % colors.length];
+      el.style.color = c;
+      el.style.textShadow = `0 0 20px ${c}88, 0 0 50px ${c}44`;
+      starR = parseInt(c.slice(1,3), 16);
+      starG = parseInt(c.slice(3,5), 16);
+      starB = parseInt(c.slice(5,7), 16);
+      btn.style.color = c;
+      btn.style.borderColor = c;
+      btn.style.boxShadow = `0 0 10px ${c}55`;
+      bgRows().forEach((row, idx) => {
+        const rc = colors[(i + idx) % colors.length];
+        row.style.color = rc + '18';
+      });
+      i++;
+      frame = setTimeout(rainbow, 80);
+    }
+
+    function toggle() {
+      if (active) {
+        clearTimeout(frame);
+        el.style.color = '#DD0099';
+        el.style.textShadow = '0 0 15px rgba(200,0,140,0.4), 0 0 35px rgba(180,0,120,0.25)';
+        btn.style.color = '#DD0099';
+        btn.style.borderColor = '#DD0099';
+        btn.style.boxShadow = '0 0 10px rgba(200,0,140,0.3), 0 0 25px rgba(180,0,120,0.15)';
+        bgRows().forEach((row, idx) => {
+          row.style.color = idx % 2 === 0 ? 'rgba(221,0,153,0.07)' : 'rgba(221,0,153,0.05)';
+        });
+        starR = 255; starG = 255; starB = 255;
+        active = false;
+      } else {
+        active = true;
+        rainbow();
+      }
+    }
+
+    function openModal(id) {
+      document.getElementById('overlay-' + id).classList.add('visible');
+    }
+
+    function closeModal(id) {
+      document.getElementById('overlay-' + id).classList.remove('visible');
+    }
+
+    function handleClick(e, id) {
+      if (e.target === document.getElementById('overlay-' + id)) closeModal(id);
+    }
+
+    // Generate urban-style repeated PASTA background
+    (function() {
+      const bg = document.getElementById('bg-pasta');
+      const word = 'dfti';
+      const sep = '\u2003\u2003';
+      const repeatCount = 40;
+      const rows = Math.ceil(window.innerHeight / 38) + 4;
+      const fxClasses = ['dfti-opt-glow','dfti-opt-chroma','dfti-opt-wave','dfti-opt-flip'];
+      const frag = document.createDocumentFragment();
+      for (let i = 0; i < rows; i++) {
+        const div = document.createElement('div');
+        div.className = 'bg-row';
+        let html = '';
+        for (let j = 0; j < repeatCount; j++) {
+          if (Math.random() < 0.18) {
+            const fx  = fxClasses[Math.floor(Math.random() * fxClasses.length)];
+            const dur = (8 + Math.random() * 9).toFixed(1) + 's';
+            const del = (Math.random() * 14).toFixed(1) + 's';
+            html += `<span class="dfti-opt ${fx}" style="--dur:${dur};--del:${del}">${word}</span>${sep}`;
+          } else {
+            html += word + sep;
+          }
+        }
+        div.innerHTML = html;
+        frag.appendChild(div);
+      }
+      bg.appendChild(frag);
+    })();
+
+    // ── Globals compartidos ──
+    let cursorX = -9999, cursorY = -9999;
+    let starR = 255, starG = 255, starB = 255;
+    let pastaEntered = false;
+    let orientX = 0, orientY = 0;
+    window.addEventListener('deviceorientation', e => {
+      orientX = Math.max(-1, Math.min(1, (e.gamma || 0) / 25));
+      orientY = Math.max(-1, Math.min(1, ((e.beta  || 45) - 45) / 25));
+    }, { passive: true });
+
+    // ── Starfield ──
+    (function() {
+      const canvas = document.getElementById('stars-canvas');
+      const ctx = canvas.getContext('2d');
+      const STAR_COUNT = IS_MOBILE ? 50 : 160;
+      let stars = [];
+      let _sFrame = 0;
+
+      function resize() {
+        canvas.width  = window.innerWidth;
+        canvas.height = window.innerHeight;
+      }
+
+      function initStars() {
+        stars = [];
+        for (let i = 0; i < STAR_COUNT; i++) {
+          stars.push({
+            x:     Math.random() * canvas.width,
+            y:     Math.random() * canvas.height,
+            r:     Math.random() * 1.5 + 0.5,
+            vx:    (Math.random() - 0.5) * 0.25,
+            vy:    (Math.random() - 0.5) * 0.25,
+            alpha: Math.random() * 0.5 + 0.4,
+            da:    (Math.random() * 0.005 + 0.001) * (Math.random() < 0.5 ? 1 : -1),
+            minA:  0.25,
+            maxA:  0.95
+          });
+        }
+      }
+
+      function draw() {
+        // Throttle a ~30fps en móvil (salta frames impares)
+        if (IS_MOBILE && ++_sFrame & 1) { requestAnimationFrame(draw); return; }
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        for (const s of stars) {
+          ctx.beginPath();
+          ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(${starR},${starG},${starB},${s.alpha.toFixed(3)})`;
+          ctx.fill();
+
+          s.x += s.vx;
+          s.y += s.vy;
+          // repeler del cursor (solo desktop)
+          if (!IS_MOBILE) {
+            const _dx = s.x - cursorX, _dy = s.y - cursorY;
+            const _d  = Math.sqrt(_dx * _dx + _dy * _dy);
+            if (_d < 90 && _d > 0) {
+              const _f = (90 - _d) / 90 * 1.6;
+              s.x += (_dx / _d) * _f;
+              s.y += (_dy / _d) * _f;
+            }
+          }
+          s.alpha += s.da;
+
+          s.x += orientX * 0.3;
+          s.y += orientY * 0.3;
+          if (s.alpha >= s.maxA || s.alpha <= s.minA) s.da *= -1;
+          if (s.x < -2) s.x = canvas.width + 2;
+          if (s.x > canvas.width + 2) s.x = -2;
+          if (s.y < -2) s.y = canvas.height + 2;
+          if (s.y > canvas.height + 2) s.y = -2;
+        }
+        requestAnimationFrame(draw);
+      }
+
+      resize();
+      initStars();
+      draw();
+      window.addEventListener('resize', () => { resize(); initStars(); });
+    })();
+
+    // ── Audio ──
+    const audio = document.getElementById('audio-player');
+    audio.loop = true;
+
+    // ── Volumen ──
+    const _volPaths = {
+      off: 'M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z',
+      low:  'M18.5 12c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM5 9v6h4l5 5V4L9 9H5z',
+      high: 'M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z'
+    };
+    function setVolume(val) {
+      val = Number(val);
+      // curva: slider 50 → volumen 0.18  (0.5^2.5 ≈ 0.177)
+      audio.volume = Math.pow(val / 100, 2.5);
+      audio.muted  = (val === 0);
+      const slider = document.getElementById('volSlider');
+      slider.style.setProperty('--vol-pct', val + '%');
+      const path = document.getElementById('volIconPath');
+      path.setAttribute('d', val === 0 ? _volPaths.off : val < 50 ? _volPaths.low : _volPaths.high);
+    }
+    function toggleVolMute() {
+      const slider = document.getElementById('volSlider');
+      const cur = Number(slider.value);
+      if (cur > 0) { slider._prev = cur; slider.value = 0; }
+      else          { slider.value = slider._prev || 50; }
+      setVolume(slider.value);
+    }
+    setVolume(50);
+
+    // ── Splash ──
+    (function() {
+      const splash = document.getElementById('splash');
+      const count = 18;
+      for (let s = 0; s < count; s++) {
+        const star = document.createElement('span');
+        star.className = 'splash-star';
+        star.textContent = '*';
+        star.style.top = Math.random() * 90 + 5 + '%';
+        star.style.left = Math.random() * 94 + 3 + '%';
+        star.style.opacity = (Math.random() * 0.5 + 0.3).toFixed(2);
+        splash.appendChild(star);
+      }
+    })();
+
+    function enterPage() {
+      if (navigator.vibrate) navigator.vibrate(40);
+      const doEnter = () => {
+        document.getElementById('splash').classList.add('hidden');
+        document.getElementById('pasta').classList.add('entering');
+        document.getElementById('pasta-3d').classList.add('visible');
+        document.getElementById('pasta-3d-bottom').classList.add('visible');
+        pastaEntered = true;
+        document.querySelectorAll('.stagger-item').forEach((el, idx) => {
+          setTimeout(() => el.classList.add('stagger-visible'), 180 + idx * 110);
+        });
+        audio.muted = false;
+        const _sv = document.getElementById('volSlider');
+        audio.volume = _sv ? Math.pow(Number(_sv.value) / 100, 2.5) : 0.18;
+        audio.play().catch(() => {});
+      };
+      if (document.startViewTransition) {
+        document.startViewTransition(doEnter);
+      } else {
+        doEnter();
+      }
+    }
+
+    // ── Frases aleatorias ──
+    (function() {
+      const phrases = [
+        'via draconis ✧'
+      ];
+      document.getElementById('pasta-phrase').textContent =
+        phrases[Math.floor(Math.random() * phrases.length)];
+    })();
+
+    // ── Cursor trail + actualización cursorX/Y ──
+    (function() {
+      let lastTrail = 0;
+      function spawnTrail(x, y) {
+        const d = document.createElement('div');
+        d.className = 'trail-dot';
+        const sz = Math.random() * 5 + 3;
+        d.style.cssText = `left:${x}px;top:${y}px;width:${sz}px;height:${sz}px;` +
+          `margin-left:${(Math.random()*8-4).toFixed(1)}px;margin-top:${(Math.random()*8-4).toFixed(1)}px`;
+        document.body.appendChild(d);
+        setTimeout(() => d.remove(), 500);
+      }
+      window.addEventListener('mousemove', e => {
+        cursorX = e.clientX; cursorY = e.clientY;
+        const now = Date.now();
+        if (now - lastTrail > 35) { spawnTrail(e.clientX, e.clientY); lastTrail = now; }
+      });
+      window.addEventListener('touchmove', e => {
+        cursorX = e.touches[0].clientX; cursorY = e.touches[0].clientY;
+        const now = Date.now();
+        if (now - lastTrail > 50) { spawnTrail(e.touches[0].clientX, e.touches[0].clientY); lastTrail = now; }
+      }, { passive: true });
+    })();
+
+    // ── Click ripple ──
+    (function() {
+      function spawnRipple(x, y) {
+        const r = document.createElement('div');
+        r.className = 'ripple';
+        r.style.left = x + 'px';
+        r.style.top  = y + 'px';
+        document.body.appendChild(r);
+        setTimeout(() => r.remove(), 700);
+      }
+      window.addEventListener('click', e => spawnRipple(e.clientX, e.clientY));
+      window.addEventListener('touchstart', e => {
+        spawnRipple(e.touches[0].clientX, e.touches[0].clientY);
+      }, { passive: true });
+    })();
+
+    // ── Easter egg: escribe P·A·S·T·A en el teclado ──
+    (function() {
+      const seq = 'pasta';
+      let idx = 0;
+      document.addEventListener('keydown', e => {
+        if (e.key.toLowerCase() === seq[idx]) {
+          idx++;
+          if (idx === seq.length) { idx = 0; openModal('easter'); }
+        } else {
+          idx = e.key.toLowerCase() === seq[0] ? 1 : 0;
+        }
+      });
+    })();
+
+    // ── Secreto: 10 clicks rápidos en el botón ? ──
+    (function() {
+      let clicks = 0, timer = null;
+      document.getElementById('btn').addEventListener('click', () => {
+        clicks++;
+        clearTimeout(timer);
+        timer = setTimeout(() => { clicks = 0; }, 2500);
+        if (clicks >= 10) { clicks = 0; openModal('secret'); }
+      });
+    })();
+
+    // ── Web Share / Compartir ──
+    function showToast(msg) {
+      const t = document.createElement('div');
+      t.className = 'toast';
+      t.textContent = msg;
+      document.body.appendChild(t);
+      setTimeout(() => t.remove(), 2100);
+    }
+
+    async function shareIt() {
+      if (navigator.vibrate) navigator.vibrate(30);
+      try {
+        if (navigator.share) {
+          await navigator.share({ title: 'PASTA', text: 'tu ya sabes 🍝', url: location.href });
+        } else if (navigator.clipboard) {
+          await navigator.clipboard.writeText(location.href);
+          showToast('¡COPIADO!');
+        }
+      } catch(e) {}
+    }
+
+    // ── Tilt 3D en el título (react-parallax-tilt portado a vanilla) ──
+    (function() {
+      const container = document.querySelector('.word-container');
+      let tiltX = 0, tiltY = 0, targetX = 0, targetY = 0;
+      window.addEventListener('mousemove', e => {
+        if (!pastaEntered) return;
+        const cx = window.innerWidth / 2, cy = window.innerHeight / 2;
+        targetX = (e.clientY - cy) / cy * -8;
+        targetY = (e.clientX - cx) / cx *  8;
+      });
+      window.addEventListener('mouseleave', () => { targetX = 0; targetY = 0; });
+      let _tf = 0;
+      (function loop() {
+        // Throttle a ~30fps en móvil
+        if (!IS_MOBILE || ++_tf & 1) {
+          const ox = -orientY * 6, oy = orientX * 6;
+          tiltX += ((targetX + ox) - tiltX) * 0.08;
+          tiltY += ((targetY + oy) - tiltY) * 0.08;
+          if (pastaEntered) {
+            container.style.transform =
+              `perspective(700px) rotateX(${tiltX.toFixed(2)}deg) rotateY(${tiltY.toFixed(2)}deg)`;
+          }
+        }
+        requestAnimationFrame(loop);
+      })();
+    })();
+
+    // ── Efecto magnético en botones ──
+    (function() {
+      const STRENGTH = 0.42;
+      const targets = [
+        document.getElementById('btn'),
+        document.querySelector('.share-btn')
+      ];
+      targets.forEach(el => {
+        if (!el) return;
+        el.addEventListener('mousemove', e => {
+          if (!pastaEntered) return;
+          const r = el.getBoundingClientRect();
+          const x = (e.clientX - (r.left + r.width  / 2)) * STRENGTH;
+          const y = (e.clientY - (r.top  + r.height / 2)) * STRENGTH;
+          el.style.transition = 'transform 0.12s ease-out';
+          el.style.transform  = `translate(${x}px, ${y}px)`;
+        });
+        el.addEventListener('mouseleave', () => {
+          el.style.transition = 'transform 0.45s cubic-bezier(0.23,1,0.32,1)';
+          el.style.transform  = 'translate(0, 0)';
+        });
+      });
+    })();
+
+    // ── Konami Code easter egg ──
+    (function() {
+      const KONAMI = ['ArrowUp','ArrowUp','ArrowDown','ArrowDown',
+                      'ArrowLeft','ArrowRight','ArrowLeft','ArrowRight','b','a'];
+      let buf = [];
+      window.addEventListener('keydown', e => {
+        buf.push(e.key);
+        if (buf.length > KONAMI.length) buf.shift();
+        if (buf.join() === KONAMI.join()) {
+          buf = [];
+          // Flash overlay
+          const flash = document.createElement('div');
+          flash.style.cssText =
+            'position:fixed;inset:0;z-index:9999;pointer-events:none;' +
+            'background:radial-gradient(circle,#ff00bb88 0%,#00000000 70%);' +
+            'animation:konami-flash 0.7s ease-out forwards';
+          document.body.appendChild(flash);
+          setTimeout(() => flash.remove(), 800);
+          // Toast
+          showToast('⬆⬆⬇⬇⬅➡⬅➡ BA 🎮 KONAMI!');
+          // Vibración rítmica
+          if (navigator.vibrate) navigator.vibrate([80,40,80,40,200]);
+          // Rainbow en PASTA 6 segundos
+          const pasta = document.getElementById('pasta');
+          pasta.classList.add('rainbow');
+          setTimeout(() => pasta.classList.remove('rainbow'), 6000);
+        }
+      });
+    })();
+  </script>
+
+  <!-- Text Pressure effect on DUFITUFI -->
+  <script>
+    (function initTextPressure() {
+      const el = document.getElementById('pasta');
+      if (!el) return;
+
+      const chars = 'DUFITUFI'.split('');
+      el.innerHTML = '';
+      const spans = chars.map(ch => {
+        const s = document.createElement('span');
+        s.className = 'pressure-letter';
+        s.textContent = ch;
+        el.appendChild(s);
+        return s;
+      });
+
+      const mouse  = { x: 0, y: 0 };
+      const cursor = { x: 0, y: 0 };
+
+      const dist = (a, b) => Math.hypot(b.x - a.x, b.y - a.y);
+      const attr = (d, max, min, range) => Math.max(min, range - Math.abs(range * d / max));
+
+      window.addEventListener('mousemove', e => { cursor.x = e.clientX; cursor.y = e.clientY; });
+      window.addEventListener('touchmove', e => {
+        cursor.x = e.touches[0].clientX;
+        cursor.y = e.touches[0].clientY;
+      }, { passive: true });
+
+      // Iniciar cursor en el centro del elemento
+      requestAnimationFrame(() => {
+        const r = el.getBoundingClientRect();
+        cursor.x = mouse.x = r.left + r.width  / 2;
+        cursor.y = mouse.y = r.top  + r.height / 2;
+      });
+
+      function animate() {
+        mouse.x += (cursor.x - mouse.x) / 15;
+        mouse.y += (cursor.y - mouse.y) / 15;
+
+        const r   = el.getBoundingClientRect();
+        const max = r.width / 2 || 1;
+
+        spans.forEach(span => {
+          const b = span.getBoundingClientRect();
+          const c = { x: b.left + b.width / 2, y: b.top + b.height / 2 };
+          const d = dist(mouse, c);
+          const wght = Math.floor(attr(d, max, 100, 800));
+          const wdth = Math.floor(attr(d, max, 5,  195));
+          const ital = attr(d, max, 0, 1).toFixed(2);
+          span.style.fontVariationSettings = `'wght' ${wght}, 'wdth' ${wdth}, 'ital' ${ital}`;
+        });
+
+        requestAnimationFrame(animate);
+      }
+      // En móvil: touchmove ya actualiza cursor; orientación del dispositivo también lo mueve
+      if (IS_MOBILE) {
+        window.addEventListener('deviceorientation', e => {
+          const r = el.getBoundingClientRect();
+          if (!r.width) return;
+          cursor.x = r.left + r.width  / 2 + (e.gamma || 0) / 45 * r.width  / 2;
+          cursor.y = r.top  + r.height / 2 + ((e.beta  || 45) - 45) / 45 * r.height / 2;
+        }, { passive: true });
+      }
+      animate();
+    })();
+  </script>
+
+  <!-- Efecto magnético en el botón ? -->
+  <script>
+    (function() {
+      const btn = document.querySelector('.p-hole-btn');
+      if (!btn || IS_MOBILE) return;  // sin ratón en móvil
+      let ox = 0, oy = 0, tx = 0, ty = 0;
+      const THRESHOLD = 90;
+
+      window.addEventListener('mousemove', e => {
+        const r  = btn.getBoundingClientRect();
+        const cx = r.left + r.width  / 2;
+        const cy = r.top  + r.height / 2;
+        const dx = e.clientX - cx;
+        const dy = e.clientY - cy;
+        const d  = Math.hypot(dx, dy);
+        if (d < THRESHOLD) {
+          const f = (1 - d / THRESHOLD) * 0.45;
+          tx = dx * f; ty = dy * f;
+        } else {
+          tx = 0; ty = 0;
+        }
+      });
+
+      window.addEventListener('mouseleave', () => { tx = 0; ty = 0; });
+
+      (function loop() {
+        ox += (tx - ox) * 0.18;
+        oy += (ty - oy) * 0.18;
+        btn.style.transform = `translate(${ox.toFixed(2)}px, ${oy.toFixed(2)}px)`;
+        requestAnimationFrame(loop);
+      })();
+    })();
+  </script>
+
+  <!-- Three.js: torus knots (un solo WebGL en móvil, dos en desktop) -->
+  <script type="module">
+    import * as THREE from 'three';
+
+    const isMob = navigator.maxTouchPoints > 0;
+    const canvas1 = document.getElementById('pasta-3d');
+    const canvas2 = document.getElementById('pasta-3d-bottom');
+    const W = Math.max(canvas1.offsetWidth, 75);
+
+    // ── Renderer principal ──
+    const renderer = new THREE.WebGLRenderer({
+      canvas: canvas1,
+      alpha: true,
+      antialias: !isMob,
+      preserveDrawingBuffer: isMob  // necesario para copiar al canvas2 en móvil
+    });
+    renderer.setSize(W, W);
+    renderer.setPixelRatio(isMob ? Math.min(devicePixelRatio, 1.5) : Math.min(devicePixelRatio, 2));
+    renderer.setClearColor(0x000000, 0);
+
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(50, 1, 0.1, 100);
+    camera.position.z = 2.8;
+
+    const mat = new THREE.MeshStandardMaterial({
+      color: 0xDD0099,
+      metalness: 0.75,
+      roughness: 0.18,
+      emissive: 0x550033,
+      emissiveIntensity: 0.5,
+    });
+
+    scene.add(new THREE.AmbientLight(0xffffff, 0.5));
+    const l1 = new THREE.PointLight(0xFF00CC, 4, 20);
+    l1.position.set(2, 2, 2); scene.add(l1);
+    const l2 = new THREE.PointLight(0x0044FF, 2, 20);
+    l2.position.set(-2, -1, 0); scene.add(l2);
+
+    // Calidad mejorada en móvil: 70/10 en vez de 40/8
+    const tubeSeg = isMob ? 70 : 100;
+    const radSeg  = isMob ? 10 : 12;
+
+    const knot = new THREE.Mesh(
+      new THREE.TorusKnotGeometry(0.6, 0.18, tubeSeg, radSeg),
+      mat
+    );
+    scene.add(knot);
+
+    if (isMob) {
+      // ── Móvil: canvas2 recibe una copia 2D del canvas1 (sin segundo WebGL) ──
+      canvas2.width = canvas2.height = W;
+      const ctx2 = canvas2.getContext('2d');
+      let _kf = 0;
+
+      (function loop() {
+        requestAnimationFrame(loop);
+        if (++_kf % 3 !== 0) return; // ~20fps
+        knot.rotation.x += 0.007;
+        knot.rotation.y += 0.011;
+        renderer.render(scene, camera);
+        // Copiar al canvas inferior con flip para que parezca rotación contraria
+        const cw = canvas2.width;
+        ctx2.save();
+        ctx2.translate(cw, cw);
+        ctx2.scale(-1, -1);
+        ctx2.drawImage(canvas1, 0, 0, cw, cw);
+        ctx2.restore();
+      })();
+
+      new ResizeObserver(() => {
+        const s = canvas1.offsetWidth;
+        if (s > 0) {
+          renderer.setSize(s, s);
+          canvas2.width = s;
+          canvas2.height = s;
+        }
+      }).observe(canvas1);
+
+    } else {
+      // ── Desktop: loop normal para el primer nudo ──
+      (function loop() {
+        requestAnimationFrame(loop);
+        knot.rotation.x += 0.007;
+        knot.rotation.y += 0.011;
+        renderer.render(scene, camera);
+      })();
+
+      new ResizeObserver(() => {
+        const s = canvas1.offsetWidth;
+        if (s > 0) renderer.setSize(s, s);
+      }).observe(canvas1);
+
+      // ── Desktop: segundo renderer independiente para canvas2 ──
+      const W2 = Math.max(canvas2.offsetWidth, 75);
+      const renderer2 = new THREE.WebGLRenderer({ canvas: canvas2, alpha: true, antialias: true });
+      renderer2.setSize(W2, W2);
+      renderer2.setPixelRatio(Math.min(devicePixelRatio, 2));
+      renderer2.setClearColor(0x000000, 0);
+
+      const scene2 = new THREE.Scene();
+      const camera2 = new THREE.PerspectiveCamera(50, 1, 0.1, 100);
+      camera2.position.z = 2.8;
+
+      const mat2 = new THREE.MeshStandardMaterial({
+        color: 0xDD0099,
+        metalness: 0.75,
+        roughness: 0.18,
+        emissive: 0x550033,
+        emissiveIntensity: 0.5,
+      });
+
+      scene2.add(new THREE.AmbientLight(0xffffff, 0.5));
+      const l1b = new THREE.PointLight(0xFF00CC, 4, 20);
+      l1b.position.set(-2, 2, 2); scene2.add(l1b);
+      const l2b = new THREE.PointLight(0x0044FF, 2, 20);
+      l2b.position.set(2, -1, 0); scene2.add(l2b);
+
+      const knot2 = new THREE.Mesh(
+        new THREE.TorusKnotGeometry(0.6, 0.18, 100, 12),
+        mat2
+      );
+      scene2.add(knot2);
+
+      (function loop2() {
+        requestAnimationFrame(loop2);
+        knot2.rotation.x -= 0.007;
+        knot2.rotation.y -= 0.011;
+        renderer2.render(scene2, camera2);
+      })();
+
+      new ResizeObserver(() => {
+        const s = canvas2.offsetWidth;
+        if (s > 0) renderer2.setSize(s, s);
+      }).observe(canvas2);
+    }
+  </script>
+</body>
+</html>
