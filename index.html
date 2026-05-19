@@ -1548,8 +1548,7 @@
     const renderer = new THREE.WebGLRenderer({
       canvas: canvas1,
       alpha: true,
-      antialias: !isMob,
-      preserveDrawingBuffer: isMob  // necesario para copiar al canvas2 en móvil
+      antialias: !isMob
     });
     renderer.setSize(W, W);
     renderer.setPixelRatio(isMob ? Math.min(devicePixelRatio, 1.5) : Math.min(devicePixelRatio, 2));
@@ -1584,34 +1583,61 @@
     scene.add(knot);
 
     if (isMob) {
-      // ── Móvil: canvas2 recibe una copia 2D del canvas1 (sin segundo WebGL) ──
-      canvas2.width = canvas2.height = W;
-      const ctx2 = canvas2.getContext('2d');
+      // ── Móvil: primer nudo ~20fps ──
       let _kf = 0;
-
       (function loop() {
         requestAnimationFrame(loop);
-        if (++_kf % 3 !== 0) return; // ~20fps
+        if (++_kf % 3 !== 0) return;
         knot.rotation.x += 0.007;
         knot.rotation.y += 0.011;
         renderer.render(scene, camera);
-        // Copiar al canvas inferior con flip para que parezca rotación contraria
-        const cw = canvas2.width;
-        ctx2.save();
-        ctx2.translate(cw, cw);
-        ctx2.scale(-1, -1);
-        ctx2.drawImage(canvas1, 0, 0, cw, cw);
-        ctx2.restore();
       })();
 
       new ResizeObserver(() => {
         const s = canvas1.offsetWidth;
-        if (s > 0) {
-          renderer.setSize(s, s);
-          canvas2.width = s;
-          canvas2.height = s;
-        }
+        if (s > 0) renderer.setSize(s, s);
       }).observe(canvas1);
+
+      // ── Móvil: segundo renderer real a ~10fps (sin copia 2D) ──
+      const W2mob = Math.max(canvas2.offsetWidth, 75);
+      const renderer2 = new THREE.WebGLRenderer({ canvas: canvas2, alpha: true, antialias: false });
+      renderer2.setSize(W2mob, W2mob);
+      renderer2.setPixelRatio(1);
+      renderer2.setClearColor(0x000000, 0);
+
+      const scene2 = new THREE.Scene();
+      const camera2 = new THREE.PerspectiveCamera(50, 1, 0.1, 100);
+      camera2.position.z = 2.8;
+
+      const mat2 = new THREE.MeshStandardMaterial({
+        color: 0xDD0099, metalness: 0.75, roughness: 0.18,
+        emissive: 0x550033, emissiveIntensity: 0.5,
+      });
+      scene2.add(new THREE.AmbientLight(0xffffff, 0.5));
+      const l1b = new THREE.PointLight(0xFF00CC, 4, 20);
+      l1b.position.set(-2, 2, 2); scene2.add(l1b);
+      const l2b = new THREE.PointLight(0x0044FF, 2, 20);
+      l2b.position.set(2, -1, 0); scene2.add(l2b);
+
+      const knot2 = new THREE.Mesh(
+        new THREE.TorusKnotGeometry(0.6, 0.18, 50, 8),
+        mat2
+      );
+      scene2.add(knot2);
+
+      let _kf2 = 0;
+      (function loop2() {
+        requestAnimationFrame(loop2);
+        if (++_kf2 % 6 !== 0) return; // ~10fps
+        knot2.rotation.x -= 0.007;
+        knot2.rotation.y -= 0.011;
+        renderer2.render(scene2, camera2);
+      })();
+
+      new ResizeObserver(() => {
+        const s = canvas2.offsetWidth;
+        if (s > 0) renderer2.setSize(s, s);
+      }).observe(canvas2);
 
     } else {
       // ── Desktop: loop normal para el primer nudo ──
