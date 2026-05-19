@@ -745,6 +745,150 @@
     opacity: 1;
     transform: translateY(0);
   }
+
+  /* ── Botón redes sociales ── */
+  .social-btn {
+    position: fixed;
+    right: clamp(12px, 3vw, 22px);
+    bottom: clamp(12px, 3vh, 22px);
+    width: clamp(2rem, 8vw, 3rem);
+    height: clamp(2rem, 8vw, 3rem);
+    background: rgba(0, 0, 0, 0.55);
+    border: 1.5px solid rgba(221, 0, 153, 0.55);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+    z-index: 3;
+    padding: 0;
+    animation: socialBtnPulse 2.8s ease-in-out infinite;
+    transition: transform 0.3s cubic-bezier(0.34, 1.2, 0.64, 1), border-color 0.25s ease, box-shadow 0.25s ease;
+  }
+  .social-btn.open {
+    animation: none;
+    transform: rotate(45deg);
+    border-color: rgba(221, 0, 153, 0.95);
+    box-shadow: 0 0 24px rgba(221, 0, 153, 0.7);
+  }
+  .social-btn:active { transform: scale(0.9); }
+  .social-btn svg { width: 42%; height: 42%; fill: #DD0099; }
+  @keyframes socialBtnPulse {
+    0%, 100% { box-shadow: 0 0 10px rgba(221,0,153,0.25); border-color: rgba(221,0,153,0.55); }
+    50%       { box-shadow: 0 0 22px rgba(221,0,153,0.6), 0 0 40px rgba(221,0,153,0.15); border-color: rgba(221,0,153,0.9); }
+  }
+
+  /* ── Panel de redes sociales ── */
+  .social-panel {
+    position: fixed;
+    right: clamp(12px, 3vw, 22px);
+    bottom: calc(clamp(12px, 3vh, 22px) + clamp(2rem, 8vw, 3rem) + 0.7rem);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.48rem;
+    z-index: 3;
+    opacity: 0;
+    transform: translateY(14px) scale(0.88);
+    pointer-events: none;
+    transition: opacity 0.26s ease, transform 0.34s cubic-bezier(0.34, 1.2, 0.64, 1);
+    transform-origin: bottom right;
+  }
+  .social-panel.open {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    pointer-events: auto;
+  }
+
+  /* ── Tarjetas ── */
+  .social-card {
+    background: rgba(7, 7, 7, 0.92);
+    border: 1px solid rgba(221, 0, 153, 0.18);
+    border-radius: 0.9rem;
+    padding: clamp(0.55rem, 2vw, 0.9rem) clamp(0.45rem, 1.8vw, 0.72rem);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.22rem;
+    text-decoration: none;
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    min-width: clamp(70px, 17vw, 96px);
+    overflow: hidden;
+    position: relative;
+  }
+  /* stagger entrada */
+  .social-panel.open .social-card { animation: scCardIn 0.34s cubic-bezier(0.34, 1.2, 0.64, 1) both; }
+  .social-panel.open .social-card:nth-child(1) { animation-delay: 0.03s; }
+  .social-panel.open .social-card:nth-child(2) { animation-delay: 0.09s; }
+  .social-panel.open .social-card:nth-child(3) { animation-delay: 0.15s; }
+  .social-panel.open .social-card:nth-child(4) { animation-delay: 0.21s; }
+  @keyframes scCardIn {
+    from { opacity: 0; transform: translateY(12px) scale(0.87); }
+    to   { opacity: 1; transform: translateY(0)     scale(1); }
+  }
+  /* hover por plataforma */
+  .social-card[data-platform="tiktok"],
+  .social-card[data-platform="youtube"],
+  .social-card[data-platform="x"] {
+    cursor: pointer;
+    transition: border-color 0.22s ease, box-shadow 0.22s ease, transform 0.18s ease;
+  }
+  .social-card[data-platform="instagram"] { cursor: default; opacity: 0.65; }
+  @media (hover: hover) {
+    .social-card[data-platform="tiktok"]:hover  { border-color: #69C9D0; box-shadow: 0 0 16px rgba(105,201,208,0.32), 0 0 6px rgba(238,29,82,0.2); transform: translateY(-2px) scale(1.05); }
+    .social-card[data-platform="youtube"]:hover  { border-color: #FF3333; box-shadow: 0 0 18px rgba(255,51,51,0.38); transform: translateY(-2px) scale(1.05); }
+    .social-card[data-platform="x"]:hover        { border-color: rgba(255,255,255,0.55); box-shadow: 0 0 14px rgba(255,255,255,0.13); transform: translateY(-2px) scale(1.05); }
+  }
+  .social-card[data-platform="tiktok"]:active,
+  .social-card[data-platform="youtube"]:active,
+  .social-card[data-platform="x"]:active { transform: scale(0.95); }
+  /* ícono */
+  .sc-icon {
+    width: clamp(1.5rem, 5.5vw, 2.1rem);
+    height: clamp(1.5rem, 5.5vw, 2.1rem);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 0.05rem;
+  }
+  .sc-icon svg { width: 100%; height: 100%; }
+  .social-card[data-platform="tiktok"]  .sc-icon svg { fill: #ffffff; filter: drop-shadow(0 0 4px rgba(105,201,208,0.45)) drop-shadow(0 0 2px rgba(238,29,82,0.3)); }
+  .social-card[data-platform="youtube"] .sc-icon svg { fill: #FF3333; filter: drop-shadow(0 0 5px rgba(255,51,51,0.55)); }
+  .social-card[data-platform="x"]       .sc-icon svg { fill: #ffffff; }
+  /* misterio instagram */
+  .sc-mystery {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 900;
+    font-size: clamp(1.1rem, 4.5vw, 1.6rem);
+    color: rgba(221, 0, 153, 0.45);
+    text-shadow: 0 0 12px rgba(221,0,153,0.3);
+    animation: mysteryFloat 3.2s ease-in-out infinite;
+  }
+  @keyframes mysteryFloat {
+    0%, 100% { opacity: 0.45; transform: scale(1); }
+    50%       { opacity: 0.85; transform: scale(1.1); }
+  }
+  /* nombre y handle */
+  .sc-name {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 900;
+    font-size: clamp(0.42rem, 1.7vw, 0.57rem);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+  .social-card[data-platform="tiktok"]    .sc-name { color: #ffffff; }
+  .social-card[data-platform="youtube"]   .sc-name { color: #FF5555; }
+  .social-card[data-platform="instagram"] .sc-name { color: rgba(221, 0, 153, 0.55); }
+  .social-card[data-platform="x"]         .sc-name { color: rgba(255, 255, 255, 0.8); }
+  .sc-handle {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 900;
+    font-size: clamp(0.35rem, 1.4vw, 0.5rem);
+    color: rgba(255, 255, 255, 0.32);
+    letter-spacing: 0.03em;
+  }
 </style>
 </head>
 <body>
@@ -757,7 +901,51 @@
   <div class="word-container">
     <span class="word" id="pasta">DUFITUFI</span>
   </div>
-  <button class="p-hole-btn" onclick="openModal('latin')">?</button>
+  <!-- Botón redes sociales -->
+  <button class="social-btn" id="social-btn" onclick="toggleSocial()" aria-label="Redes sociales">
+    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <circle cx="7"  cy="7"  r="2.5"/>
+      <circle cx="17" cy="7"  r="2.5"/>
+      <circle cx="7"  cy="17" r="2.5"/>
+      <circle cx="17" cy="17" r="2.5"/>
+    </svg>
+  </button>
+
+  <!-- Panel redes sociales -->
+  <div class="social-panel" id="social-panel">
+    <a class="social-card" data-platform="tiktok" href="https://www.tiktok.com/@dufitufi_" target="_blank" rel="noopener noreferrer">
+      <div class="sc-icon">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.27 6.27 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V8.69a8.18 8.18 0 0 0 4.78 1.52V6.78a4.85 4.85 0 0 1-1.01-.09z"/>
+        </svg>
+      </div>
+      <span class="sc-name">TikTok</span>
+      <span class="sc-handle">@dufitufi_</span>
+    </a>
+    <a class="social-card" data-platform="youtube" href="https://www.youtube.com/@DuFiTuFi" target="_blank" rel="noopener noreferrer">
+      <div class="sc-icon">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M21.58 7.19c-.23-.86-.91-1.54-1.77-1.77C18.25 5 12 5 12 5s-6.25 0-7.81.42c-.86.23-1.54.91-1.77 1.77C2 8.75 2 12 2 12s0 3.25.42 4.81c.23.86.91 1.54 1.77 1.77C5.75 19 12 19 12 19s6.25 0 7.81-.42c.86-.23 1.54-.91 1.77-1.77C22 15.25 22 12 22 12s0-3.25-.42-4.81zM10 15V9l5.2 3-5.2 3z"/>
+        </svg>
+      </div>
+      <span class="sc-name">YouTube</span>
+      <span class="sc-handle">@DuFiTuFi</span>
+    </a>
+    <div class="social-card" data-platform="instagram">
+      <div class="sc-icon sc-mystery">?</div>
+      <span class="sc-name">Instagram</span>
+      <span class="sc-handle">misterio</span>
+    </div>
+    <a class="social-card" data-platform="x" href="https://x.com/4lxgrr" target="_blank" rel="noopener noreferrer">
+      <div class="sc-icon">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.73-8.835L1.254 2.25H8.08l4.259 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+        </svg>
+      </div>
+      <span class="sc-name">X</span>
+      <span class="sc-handle">@4lxgrr</span>
+    </a>
+  </div>
   <div class="pasta-phrase" id="pasta-phrase"></div>
   <button class="btn stagger-item" id="btn" onclick="toggle()">✦</button>
 
@@ -1322,37 +1510,28 @@
     })();
   </script>
 
-  <!-- Efecto magnético en el botón ? -->
+  <!-- Panel redes sociales: toggle y cierre exterior -->
   <script>
     (function() {
-      const btn = document.querySelector('.p-hole-btn');
-      if (!btn || IS_MOBILE) return;  // sin ratón en móvil
-      let ox = 0, oy = 0, tx = 0, ty = 0;
-      const THRESHOLD = 90;
+      const socialBtn   = document.getElementById('social-btn');
+      const socialPanel = document.getElementById('social-panel');
+      let socialOpen    = false;
 
-      window.addEventListener('mousemove', e => {
-        const r  = btn.getBoundingClientRect();
-        const cx = r.left + r.width  / 2;
-        const cy = r.top  + r.height / 2;
-        const dx = e.clientX - cx;
-        const dy = e.clientY - cy;
-        const d  = Math.hypot(dx, dy);
-        if (d < THRESHOLD) {
-          const f = (1 - d / THRESHOLD) * 0.45;
-          tx = dx * f; ty = dy * f;
-        } else {
-          tx = 0; ty = 0;
-        }
+      window.toggleSocial = function() {
+        socialOpen = !socialOpen;
+        socialBtn.classList.toggle('open', socialOpen);
+        socialPanel.classList.toggle('open', socialOpen);
+        if (navigator.vibrate) navigator.vibrate(18);
+      };
+
+      // Cerrar al pulsar fuera del panel y del botón
+      document.addEventListener('click', e => {
+        if (!socialOpen) return;
+        if (socialPanel.contains(e.target) || socialBtn.contains(e.target)) return;
+        socialOpen = false;
+        socialBtn.classList.remove('open');
+        socialPanel.classList.remove('open');
       });
-
-      window.addEventListener('mouseleave', () => { tx = 0; ty = 0; });
-
-      (function loop() {
-        ox += (tx - ox) * 0.18;
-        oy += (ty - oy) * 0.18;
-        btn.style.transform = `translate(${ox.toFixed(2)}px, ${oy.toFixed(2)}px)`;
-        requestAnimationFrame(loop);
-      })();
     })();
   </script>
 
