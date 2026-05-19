@@ -1564,10 +1564,7 @@
       const l2b = new THREE.PointLight(0x0044FF, 2, 20);
       l2b.position.set(2, -1, 0); scene2.add(l2b);
 
-      const knot2 = new THREE.Mesh(
-        new THREE.TorusKnotGeometry(0.6, 0.18, 50, 8),
-        mat2
-      );
+      const knot2 = new THREE.Mesh(knot.geometry, mat2);
       scene2.add(knot2);
 
       let _kf2 = 0;
