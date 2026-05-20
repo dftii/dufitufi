@@ -662,6 +662,14 @@
   }
   #pasta-3d-bottom.visible { opacity: 1; }
 
+  #cursor-trail {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 9999;
+  }
+
   /* ── Stagger de entrada (Framer Motion style) ── */
   .stagger-item {
     opacity: 0;
@@ -746,14 +754,14 @@
     position: relative;
   }
   /* stagger entrada */
-  .social-panel.open .social-card { animation: scCardIn 0.34s cubic-bezier(0.34, 1.2, 0.64, 1) both; }
-  .social-panel.open .social-card:nth-child(1) { animation-delay: 0.03s; }
-  .social-panel.open .social-card:nth-child(2) { animation-delay: 0.09s; }
-  .social-panel.open .social-card:nth-child(3) { animation-delay: 0.15s; }
-  .social-panel.open .social-card:nth-child(4) { animation-delay: 0.21s; }
+  .social-panel.open .social-card { animation: scCardIn 0.48s cubic-bezier(0.175, 0.885, 0.32, 1.4) both; }
+  .social-panel.open .social-card:nth-child(1) { animation-delay: 0.04s; }
+  .social-panel.open .social-card:nth-child(2) { animation-delay: 0.12s; }
+  .social-panel.open .social-card:nth-child(3) { animation-delay: 0.20s; }
+  .social-panel.open .social-card:nth-child(4) { animation-delay: 0.28s; }
   @keyframes scCardIn {
-    from { opacity: 0; transform: translateY(12px) scale(0.87); }
-    to   { opacity: 1; transform: translateY(0)     scale(1); }
+    from { opacity: 0; transform: translateY(22px) scale(0.75) rotate(-3deg); }
+    to   { opacity: 1; transform: translateY(0)     scale(1)    rotate(0deg); }
   }
   /* hover por plataforma */
   .social-card[data-platform="tiktok"],
@@ -861,7 +869,7 @@
     <div class="social-card" data-platform="instagram">
       <div class="sc-icon sc-mystery">?</div>
       <span class="sc-name">Instagram</span>
-      <span class="sc-handle">misterio</span>
+      <span class="sc-handle">🧢</span>
     </div>
     <a class="social-card" data-platform="x" href="https://x.com/4lxgrr" target="_blank" rel="noopener noreferrer">
       <div class="sc-icon">
@@ -952,6 +960,7 @@
 
   <canvas id="pasta-3d"></canvas>
   <canvas id="pasta-3d-bottom"></canvas>
+  <canvas id="cursor-trail"></canvas>
 
   <audio id="audio-player" src="audio/Myke Towers - HORA CERO (Instrumental).mp3" preload="auto"></audio>
 
@@ -1634,6 +1643,54 @@
         if (s > 0) renderer2.setSize(s, s);
       }).observe(canvas2);
     }
+  </script>
+
+  <!-- Cursor trail (solo desktop) -->
+  <script>
+    (function() {
+      if (navigator.maxTouchPoints > 0) return;
+      const canvas = document.getElementById('cursor-trail');
+      const ctx = canvas.getContext('2d');
+      const particles = [];
+
+      function resize() {
+        canvas.width  = window.innerWidth;
+        canvas.height = window.innerHeight;
+      }
+      resize();
+      window.addEventListener('resize', resize);
+
+      window.addEventListener('mousemove', e => {
+        const n = Math.floor(Math.random() * 2) + 1;
+        for (let i = 0; i < n; i++) {
+          particles.push({
+            x:     e.clientX + (Math.random() - 0.5) * 8,
+            y:     e.clientY + (Math.random() - 0.5) * 8,
+            r:     Math.random() * 2.8 + 0.8,
+            life:  1.0,
+            decay: 0.032 + Math.random() * 0.022,
+            vx:    (Math.random() - 0.5) * 0.7,
+            vy:    -(Math.random() * 1.4 + 0.4),
+          });
+        }
+      });
+
+      (function draw() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        for (let i = particles.length - 1; i >= 0; i--) {
+          const p = particles[i];
+          p.x += p.vx;
+          p.y += p.vy;
+          p.life -= p.decay;
+          if (p.life <= 0) { particles.splice(i, 1); continue; }
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.r * p.life, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(221,0,153,${(p.life * 0.75).toFixed(3)})`;
+          ctx.fill();
+        }
+        requestAnimationFrame(draw);
+      })();
+    })();
   </script>
 </body>
 </html>
