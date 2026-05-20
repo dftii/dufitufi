@@ -1347,6 +1347,22 @@
           el.style.transform  = 'translate(0, 0)';
         });
       });
+
+      // Social cards activas
+      document.querySelectorAll('.social-card[data-platform="tiktok"], .social-card[data-platform="youtube"], .social-card[data-platform="x"]').forEach(el => {
+        el.addEventListener('mousemove', e => {
+          if (!pastaEntered) return;
+          const r = el.getBoundingClientRect();
+          const x = (e.clientX - (r.left + r.width  / 2)) * 0.28;
+          const y = (e.clientY - (r.top  + r.height / 2)) * 0.28;
+          el.style.transition = 'transform 0.12s ease-out';
+          el.style.transform  = `translate(${x}px, ${y}px) scale(1.05)`;
+        });
+        el.addEventListener('mouseleave', () => {
+          el.style.transition = 'transform 0.45s cubic-bezier(0.23,1,0.32,1)';
+          el.style.transform  = 'translate(0, 0) scale(1)';
+        });
+      });
     })();
 
     // ── Konami Code easter egg ──
@@ -1488,9 +1504,10 @@
     })();
   </script>
 
-  <!-- Three.js: torus knots (un solo WebGL en móvil, dos en desktop) -->
+  <!-- Three.js: dragón 3D con GLTFLoader -->
   <script type="module">
     import * as THREE from 'three';
+    import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
     const isMob = navigator.maxTouchPoints > 0;
     const canvas1 = document.getElementById('pasta-3d');
@@ -1509,7 +1526,7 @@
 
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(50, 1, 0.1, 100);
-    camera.position.z = 2.8;
+    camera.position.z = 3.5;
 
     const mat = new THREE.MeshStandardMaterial({
       color: 0xDD0099,
@@ -1519,130 +1536,131 @@
       emissiveIntensity: 0.5,
     });
 
-    scene.add(new THREE.AmbientLight(0xffffff, 0.5));
-    const l1 = new THREE.PointLight(0xFF00CC, 4, 20);
+    scene.add(new THREE.AmbientLight(0xffffff, 0.6));
+    const l1 = new THREE.PointLight(0xFF00CC, 5, 20);
     l1.position.set(2, 2, 2); scene.add(l1);
-    const l2 = new THREE.PointLight(0x0044FF, 2, 20);
+    const l2 = new THREE.PointLight(0x0044FF, 2.5, 20);
     l2.position.set(-2, -1, 0); scene.add(l2);
 
-    // Calidad mejorada en móvil: 70/10 en vez de 40/8
-    const tubeSeg = isMob ? 70 : 100;
-    const radSeg  = isMob ? 10 : 12;
+    // ── Carga del dragón ──
+    new GLTFLoader().load('Dragon.glb', gltf => {
+      const model = gltf.scene;
 
-    const knot = new THREE.Mesh(
-      new THREE.TorusKnotGeometry(0.6, 0.18, tubeSeg, radSeg),
-      mat
-    );
-    scene.add(knot);
+      // Centrar y escalar para que llene el canvas
+      const box = new THREE.Box3().setFromObject(model);
+      const center = box.getCenter(new THREE.Vector3());
+      const size = box.getSize(new THREE.Vector3());
+      const scale = 3.0 / Math.max(size.x, size.y, size.z);
+      model.scale.setScalar(scale);
+      model.position.copy(center.multiplyScalar(-scale));
+      const baseY = model.position.y;
 
-    if (isMob) {
-      // ── Móvil: primer nudo ~20fps ──
-      let _kf = 0;
-      (function loop() {
-        requestAnimationFrame(loop);
-        if (++_kf % 3 !== 0) return;
-        knot.rotation.x += 0.007;
-        knot.rotation.y += 0.011;
-        renderer.render(scene, camera);
-      })();
-
-      new ResizeObserver(() => {
-        const s = canvas1.offsetWidth;
-        if (s > 0) renderer.setSize(s, s);
-      }).observe(canvas1);
-
-      // ── Móvil: segundo renderer real a ~10fps (sin copia 2D) ──
-      const W2mob = Math.max(canvas2.offsetWidth, 75);
-      const renderer2 = new THREE.WebGLRenderer({ canvas: canvas2, alpha: true, antialias: false });
-      renderer2.setSize(W2mob, W2mob);
-      renderer2.setPixelRatio(1);
-      renderer2.setClearColor(0x000000, 0);
-
-      const scene2 = new THREE.Scene();
-      const camera2 = new THREE.PerspectiveCamera(50, 1, 0.1, 100);
-      camera2.position.z = 2.8;
-
-      const mat2 = new THREE.MeshStandardMaterial({
-        color: 0xDD0099, metalness: 0.75, roughness: 0.18,
-        emissive: 0x550033, emissiveIntensity: 0.5,
-      });
-      scene2.add(new THREE.AmbientLight(0xffffff, 0.5));
-      const l1b = new THREE.PointLight(0xFF00CC, 4, 20);
-      l1b.position.set(2, 2, 2); scene2.add(l1b);
-      const l2b = new THREE.PointLight(0x0044FF, 2, 20);
-      l2b.position.set(-2, -1, 0); scene2.add(l2b);
-
-      const knot2 = new THREE.Mesh(knot.geometry, mat2);
-      scene2.add(knot2);
-
-      let _kf2 = 0;
-      (function loop2() {
-        requestAnimationFrame(loop2);
-        if (++_kf2 % 6 !== 0) return; // ~10fps
-        knot2.rotation.x -= 0.007;
-        knot2.rotation.y -= 0.011;
-        renderer2.render(scene2, camera2);
-      })();
-
-      new ResizeObserver(() => {
-        const s = canvas2.offsetWidth;
-        if (s > 0) renderer2.setSize(s, s);
-      }).observe(canvas2);
-
-    } else {
-      // ── Desktop: loop normal para el primer nudo ──
-      (function loop() {
-        requestAnimationFrame(loop);
-        knot.rotation.x += 0.007;
-        knot.rotation.y += 0.011;
-        renderer.render(scene, camera);
-      })();
-
-      new ResizeObserver(() => {
-        const s = canvas1.offsetWidth;
-        if (s > 0) renderer.setSize(s, s);
-      }).observe(canvas1);
-
-      // ── Desktop: segundo renderer independiente para canvas2 ──
-      const W2 = Math.max(canvas2.offsetWidth, 75);
-      const renderer2 = new THREE.WebGLRenderer({ canvas: canvas2, alpha: true, antialias: true });
-      renderer2.setSize(W2, W2);
-      renderer2.setPixelRatio(Math.min(devicePixelRatio, 2));
-      renderer2.setClearColor(0x000000, 0);
-
-      const scene2 = new THREE.Scene();
-      const camera2 = new THREE.PerspectiveCamera(50, 1, 0.1, 100);
-      camera2.position.z = 2.8;
-
-      const mat2 = new THREE.MeshStandardMaterial({
-        color: 0xDD0099,
-        metalness: 0.75,
-        roughness: 0.18,
-        emissive: 0x550033,
-        emissiveIntensity: 0.5,
+      // Aplicar material rosa/magenta a todos los meshes
+      model.traverse(child => {
+        if (child.isMesh) child.material = mat;
       });
 
-      scene2.add(new THREE.AmbientLight(0xffffff, 0.5));
-      const l1b = new THREE.PointLight(0xFF00CC, 4, 20);
-      l1b.position.set(2, 2, 2); scene2.add(l1b);
-      const l2b = new THREE.PointLight(0x0044FF, 2, 20);
-      l2b.position.set(-2, -1, 0); scene2.add(l2b);
+      scene.add(model);
 
-      const knot2 = new THREE.Mesh(knot.geometry, mat2);
-      scene2.add(knot2);
+      if (isMob) {
+        // ── Móvil: primera figura ~20fps ──
+        let _kf = 0;
+        (function loop() {
+          requestAnimationFrame(loop);
+          if (++_kf % 3 !== 0) return;
+          const t = performance.now() / 1000;
+          model.position.y = baseY + Math.sin(t * 1.5) * 0.22;
+          model.rotation.z = Math.sin(t * 0.9) * 0.11;
+          renderer.render(scene, camera);
+        })();
 
-      (function loop2() {
-        requestAnimationFrame(loop2);
-        knot2.rotation.x -= 0.007;
-        knot2.rotation.y -= 0.011;
-        renderer2.render(scene2, camera2);
-      })();
+        new ResizeObserver(() => {
+          const s = canvas1.offsetWidth;
+          if (s > 0) renderer.setSize(s, s);
+        }).observe(canvas1);
 
-      new ResizeObserver(() => {
-        const s = canvas2.offsetWidth;
-        if (s > 0) renderer2.setSize(s, s);
-      }).observe(canvas2);
-    }
+        // ── Móvil: segunda figura ~10fps ──
+        const W2mob = Math.max(canvas2.offsetWidth, 75);
+        const renderer2 = new THREE.WebGLRenderer({ canvas: canvas2, alpha: true, antialias: false });
+        renderer2.setSize(W2mob, W2mob);
+        renderer2.setPixelRatio(1);
+        renderer2.setClearColor(0x000000, 0);
+
+        const scene2 = new THREE.Scene();
+        const camera2 = new THREE.PerspectiveCamera(50, 1, 0.1, 100);
+        camera2.position.z = 3.5;
+        scene2.add(new THREE.AmbientLight(0xffffff, 0.6));
+        const l1b = new THREE.PointLight(0xFF00CC, 5, 20);
+        l1b.position.set(2, 2, 2); scene2.add(l1b);
+        const l2b = new THREE.PointLight(0x0044FF, 2.5, 20);
+        l2b.position.set(-2, -1, 0); scene2.add(l2b);
+
+        const model2 = model.clone(true);
+        scene2.add(model2);
+
+        let _kf2 = 0;
+        (function loop2() {
+          requestAnimationFrame(loop2);
+          if (++_kf2 % 6 !== 0) return;
+          const t = performance.now() / 1000;
+          model2.position.y = baseY + Math.sin(t * 1.5 + 1.2) * 0.22;
+          model2.rotation.z = Math.sin(t * 0.9 + 1.2) * 0.11;
+          renderer2.render(scene2, camera2);
+        })();
+
+        new ResizeObserver(() => {
+          const s = canvas2.offsetWidth;
+          if (s > 0) renderer2.setSize(s, s);
+        }).observe(canvas2);
+
+      } else {
+        // ── Desktop: primera figura ──
+        (function loop() {
+          requestAnimationFrame(loop);
+          const t = performance.now() / 1000;
+          model.position.y = baseY + Math.sin(t * 1.5) * 0.22;
+          model.rotation.z = Math.sin(t * 0.9) * 0.11;
+          renderer.render(scene, camera);
+        })();
+
+        new ResizeObserver(() => {
+          const s = canvas1.offsetWidth;
+          if (s > 0) renderer.setSize(s, s);
+        }).observe(canvas1);
+
+        // ── Desktop: segunda figura ──
+        const W2 = Math.max(canvas2.offsetWidth, 75);
+        const renderer2 = new THREE.WebGLRenderer({ canvas: canvas2, alpha: true, antialias: true });
+        renderer2.setSize(W2, W2);
+        renderer2.setPixelRatio(Math.min(devicePixelRatio, 2));
+        renderer2.setClearColor(0x000000, 0);
+
+        const scene2 = new THREE.Scene();
+        const camera2 = new THREE.PerspectiveCamera(50, 1, 0.1, 100);
+        camera2.position.z = 3.5;
+        scene2.add(new THREE.AmbientLight(0xffffff, 0.6));
+        const l1b = new THREE.PointLight(0xFF00CC, 5, 20);
+        l1b.position.set(2, 2, 2); scene2.add(l1b);
+        const l2b = new THREE.PointLight(0x0044FF, 2.5, 20);
+        l2b.position.set(-2, -1, 0); scene2.add(l2b);
+
+        const model2 = model.clone(true);
+        scene2.add(model2);
+
+        (function loop2() {
+          requestAnimationFrame(loop2);
+          const t = performance.now() / 1000;
+          model2.position.y = baseY + Math.sin(t * 1.5 + 1.2) * 0.22;
+          model2.rotation.z = Math.sin(t * 0.9 + 1.2) * 0.11;
+          renderer2.render(scene2, camera2);
+        })();
+
+        new ResizeObserver(() => {
+          const s = canvas2.offsetWidth;
+          if (s > 0) renderer2.setSize(s, s);
+        }).observe(canvas2);
+      }
+    });
   </script>
 
   <!-- Cursor trail (solo desktop) -->
