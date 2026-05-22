@@ -22,6 +22,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@900&display=swap" rel="stylesheet">
+<!-- Precargar el modelo 3D: empieza a descargarse en paralelo con el HTML -->
+<link rel="preload" href="Dragon.glb" as="fetch" crossorigin="anonymous">
 <style>
   @font-face {
     font-family: "Compressa VF";
@@ -261,7 +263,8 @@
     display: flex;
     flex-direction: column;
     justify-content: center;
-    contain: layout style;
+    contain: layout style paint;
+    transform: translateZ(0); /* promueve a capa GPU propia: las animaciones internas no repintan el resto de la página */
   }
 
   .bg-row {
@@ -302,8 +305,8 @@
   .dfti-opt { display: inline-block; }
   .dfti-opt-glow   { animation: dftiGlow   var(--dur,9s)  var(--del,0s) ease-in-out infinite; }
   .dfti-opt-chroma { animation: dftiChroma var(--dur,11s) var(--del,0s) ease-in-out infinite; }
-  .dfti-opt-wave   { animation: dftiWave   var(--dur,8s)  var(--del,0s) ease-in-out infinite; }
-  .dfti-opt-flip   { animation: dftiFlip   var(--dur,13s) var(--del,0s) ease-in-out infinite; }
+  .dfti-opt-wave   { animation: dftiWave   var(--dur,8s)  var(--del,0s) ease-in-out infinite; will-change: transform; }
+  .dfti-opt-flip   { animation: dftiFlip   var(--dur,13s) var(--del,0s) ease-in-out infinite; will-change: transform, opacity; }
 
   /* Sin animaciones dfti en dispositivos táctiles */
   @media (hover: none) {
@@ -326,6 +329,8 @@
 
   .pressure-letter {
     display: inline-block;
+    font-optical-sizing: none;     /* desactiva ajustes ópticos: menos cálculo por repaint */
+    text-rendering: optimizeSpeed; /* prioriza velocidad sobre hinting/kerning durante animación */
   }
 
 
@@ -824,17 +829,49 @@
     color: rgba(255, 255, 255, 0.32);
     letter-spacing: 0.03em;
   }
+
+  /* ── Touch targets mínimos (WCAG 2.5.5: 44×44 px) ──
+     En táctil el icono de volumen es demasiado pequeño; aumentamos el área
+     pulsable con padding compensado para no alterar el diseño visual. */
+  @media (hover: none) {
+    .vol-ctrl svg {
+      padding: 10px;
+      margin: -10px;
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+    }
+    /* Splash: asegurar que todo el overlay recibe el tap */
+    .splash { touch-action: manipulation; }
+  }
+
+  /* ── Social panel en pantallas muy estrechas (<360 px) ──
+     Reduce el min-width de cada tarjeta para que el grid de 2 columnas
+     no desborde la pantalla ni se solape con el canvas 3D inferior. */
+  @media (max-width: 360px) {
+    .social-panel {
+      right: 8px;
+      gap: 0.32rem;
+    }
+    .social-card {
+      min-width: 62px;
+      padding: 0.45rem 0.35rem;
+    }
+    #pasta-3d-bottom {
+      width: 68px;
+      height: 68px;
+    }
+  }
 </style>
 </head>
 <body>
 
-  <canvas id="stars-canvas"></canvas>
+  <canvas id="stars-canvas" aria-hidden="true"></canvas>
 
   <!-- Urban repeated PASTA background -->
-  <div class="bg-pasta" id="bg-pasta"></div>
+  <div class="bg-pasta" id="bg-pasta" aria-hidden="true"></div>
 
-  <div class="word-container">
-    <span class="word" id="pasta">DUFITUFI</span>
+  <div class="word-container" role="heading" aria-level="1">
+    <span class="word" id="pasta" aria-label="DUFITUFI">DUFITUFI</span>
   </div>
   <!-- Botón redes sociales -->
   <button class="social-btn" id="social-btn" onclick="toggleSocial()" aria-label="Redes sociales">
@@ -866,11 +903,6 @@
       <span class="sc-name">YouTube</span>
       <span class="sc-handle">@DuFiTuFi</span>
     </a>
-    <div class="social-card" data-platform="instagram">
-      <div class="sc-icon sc-mystery">?</div>
-      <span class="sc-name">Instagram</span>
-      <span class="sc-handle">🧢</span>
-    </div>
     <a class="social-card" data-platform="x" href="https://x.com/4lxgrr" target="_blank" rel="noopener noreferrer">
       <div class="sc-icon">
         <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -880,12 +912,17 @@
       <span class="sc-name">X</span>
       <span class="sc-handle">@4lxgrr</span>
     </a>
+    <div class="social-card" data-platform="instagram">
+      <div class="sc-icon sc-mystery">?</div>
+      <span class="sc-name">Instagram</span>
+      <span class="sc-handle">🧢</span>
+    </div>
   </div>
   <div class="pasta-phrase" id="pasta-phrase"></div>
-  <button class="btn stagger-item" id="btn" onclick="toggle()">✦</button>
+  <button class="btn stagger-item" id="btn" onclick="toggle()" aria-label="Activar modo arco&#237;ris" aria-pressed="false">✦</button>
 
   <!-- OVERLAY PASTA -->
-  <div class="overlay" id="overlay-pasta" onclick="handleClick(event,'pasta')">
+  <div class="overlay" id="overlay-pasta" onclick="handleClick(event,'pasta')" role="dialog" aria-modal="true" aria-label="Poema: De Dracone">
     <div class="modal" style="align-items:center; justify-content:center;">
       <div class="modal-title">De Dracone</div>
       <div class="latin-text">
@@ -903,7 +940,7 @@
   </div>
 
   <!-- OVERLAY DUFI -->
-  <div class="overlay" id="overlay-dufi" onclick="handleClick(event,'dufi')">
+  <div class="overlay" id="overlay-dufi" onclick="handleClick(event,'dufi')" role="dialog" aria-modal="true" aria-label="Mensaje secreto">
     <div class="modal" style="align-items:center; justify-content:center; min-height:30vh;">
       <div class="dufi-message"><span>¿PASTA?</span></div>
       <button class="close-btn" onclick="closeModal('dufi')">CERRAR</button>
@@ -911,7 +948,7 @@
   </div>
 
   <!-- OVERLAY LATIN -->
-  <div class="overlay" id="overlay-latin" onclick="handleClick(event,'latin')">
+  <div class="overlay" id="overlay-latin" onclick="handleClick(event,'latin')" role="dialog" aria-modal="true" aria-label="Poema: De Dracone">
     <div class="modal" style="align-items:center; justify-content:center;">
       <div class="modal-title">De Dracone</div>
       <div class="latin-text">
@@ -929,7 +966,7 @@
   </div>
 
   <!-- OVERLAY EASTER EGG -->
-  <div class="overlay" id="overlay-easter" onclick="handleClick(event,'easter')">
+  <div class="overlay" id="overlay-easter" onclick="handleClick(event,'easter')" role="dialog" aria-modal="true" aria-label="Easter egg: PASTA">
     <div class="modal" style="align-items:center; justify-content:center; gap:0.8rem;">
       <div class="easter-title">🍝 PASTA 🍝</div>
       <div class="easter-sub">has encontrado el secreto</div>
@@ -938,7 +975,7 @@
   </div>
 
   <!-- OVERLAY SECRETO -->
-  <div class="overlay" id="overlay-secret" onclick="handleClick(event,'secret')">
+  <div class="overlay" id="overlay-secret" onclick="handleClick(event,'secret')" role="dialog" aria-modal="true" aria-label="Mensaje secreto">
     <div class="modal" style="align-items:center; justify-content:center; gap:0.8rem;">
       <div class="secret-msg">eres de los nuestros,<br><span>ya sabes lo que hay</span></div>
       <button class="close-btn" onclick="closeModal('secret')">CERRAR</button>
@@ -946,23 +983,32 @@
   </div>
 
   <!-- Control de volumen arriba izquierda -->
-  <div class="vol-ctrl">
-    <svg id="volIcon" viewBox="0 0 24 24" onclick="toggleVolMute()" xmlns="http://www.w3.org/2000/svg">
+  <div class="vol-ctrl" role="group" aria-label="Control de volumen">
+    <!-- role=button + tabindex: hace el icono de mute navegable por teclado -->
+    <svg id="volIcon" viewBox="0 0 24 24" onclick="toggleVolMute()"
+         role="button" tabindex="0" aria-label="Silenciar o activar sonido"
+         onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleVolMute();}"
+         xmlns="http://www.w3.org/2000/svg">
       <path id="volIconPath" d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
     </svg>
-    <input type="range" id="volSlider" min="0" max="100" value="50" oninput="setVolume(this.value)">
+    <input type="range" id="volSlider" min="0" max="100" value="50"
+           aria-label="Volumen" oninput="setVolume(this.value)">
   </div>
 
   <!-- Splash screen -->
-  <div class="splash" id="splash" onclick="enterPage()">
+  <div class="splash" id="splash" onclick="enterPage()"
+       role="button" tabindex="0" aria-label="Entrar a la p&#225;gina"
+       onkeydown="if(event.key==='Enter')enterPage()">
     <div class="splash-text">dale click para entrar</div>
   </div>
 
-  <canvas id="pasta-3d"></canvas>
-  <canvas id="pasta-3d-bottom"></canvas>
-  <canvas id="cursor-trail"></canvas>
+  <canvas id="pasta-3d"        aria-hidden="true"></canvas>
+  <canvas id="pasta-3d-bottom" aria-hidden="true"></canvas>
+  <canvas id="cursor-trail"    aria-hidden="true"></canvas>
 
-  <audio id="audio-player" src="audio/Myke Towers - HORA CERO (Instrumental).mp3" preload="auto"></audio>
+  <!-- preload="none": el navegador NO descarga el MP3 hasta que el usuario pulsa la pantalla splash.
+       Ahorra hasta 5 MB de datos en cada visita. La descarga empieza al llamar audio.play() en enterPage(). -->
+  <audio id="audio-player" src="audio/Myke Towers - HORA CERO (Instrumental).mp3" preload="none"></audio>
 
   <script>
     const IS_MOBILE = navigator.maxTouchPoints > 0;
@@ -1008,11 +1054,23 @@
         });
         starR = 255; starG = 255; starB = 255;
         active = false;
+        btn.setAttribute('aria-pressed', 'false');
       } else {
         active = true;
+        btn.setAttribute('aria-pressed', 'true');
         rainbow();
       }
     }
+
+    // Pausar el loop de rainbow (setTimeout) cuando la pestaña no esté activa
+    // Los rAF se pausan solos, pero setTimeout no
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden && active) {
+        clearTimeout(frame);
+      } else if (!document.hidden && active) {
+        rainbow();
+      }
+    });
 
     function openModal(id) {
       document.getElementById('overlay-' + id).classList.add('visible');
@@ -1096,6 +1154,8 @@
       }
 
       function draw() {
+        // Pausa completa cuando la pestaña no está activa (ahorra CPU/GPU)
+        if (document.hidden) return;
         // Throttle a ~30fps en móvil (salta frames impares)
         if (IS_MOBILE && ++_sFrame & 1) { requestAnimationFrame(draw); return; }
         ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -1134,6 +1194,8 @@
       initStars();
       draw();
       window.addEventListener('resize', () => { resize(); initStars(); });
+      // Reanudar el loop del starfield cuando el usuario vuelve a la pestaña
+      document.addEventListener('visibilitychange', () => { if (!document.hidden) draw(); });
     })();
 
     // ── Audio ──
@@ -1394,6 +1456,14 @@
         }
       });
     })();
+
+    // ── Escape: cierra cualquier modal abierto ──
+    document.addEventListener('keydown', e => {
+      if (e.key !== 'Escape') return;
+      document.querySelectorAll('.overlay.visible').forEach(o => {
+        closeModal(o.id.replace('overlay-', ''));
+      });
+    });
   </script>
 
   <!-- Text Pressure effect on DUFITUFI -->
@@ -1412,70 +1482,102 @@
         return s;
       });
 
+      const N      = spans.length;
       const mouse  = { x: 0, y: 0 };
       const cursor = { x: 0, y: 0 };
+      const attr   = (d, max, min, range) => Math.max(min, range - Math.abs(range * d / max));
 
-      const dist = (a, b) => Math.hypot(b.x - a.x, b.y - a.y);
-      const attr = (d, max, min, range) => Math.max(min, range - Math.abs(range * d / max));
+      // Typed arrays para dirty-check sin object allocations
+      // Evitan escribir fontVariationSettings cuando el valor no ha cambiado
+      const lastWght = new Int16Array(N).fill(-1);
+      const lastWdth = new Int16Array(N).fill(-1);
+      const lastItal = new Array(N).fill('');
 
-      window.addEventListener('mousemove', e => { cursor.x = e.clientX; cursor.y = e.clientY; });
-      window.addEventListener('touchmove', e => {
-        cursor.x = e.touches[0].clientX;
-        cursor.y = e.touches[0].clientY;
-      }, { passive: true });
-
-      // Iniciar cursor en el centro del elemento
-      requestAnimationFrame(() => {
-        const r = el.getBoundingClientRect();
-        cursor.x = mouse.x = r.left + r.width  / 2;
-        cursor.y = mouse.y = r.top  + r.height / 2;
-      });
-
-      // Caché de posiciones para evitar layout thrashing en cada frame
-      let spanCenters = [];
-      let elRect = { left: 0, top: 0, width: 1, height: 1 };
+      let elRect    = { left: 0, top: 0, width: 1, height: 1 };
+      let animating = false;
 
       function cacheLayout() {
+        // Sólo cachea el rect del contenedor: las posiciones de letra se calculan
+        // matemáticamente, evitando 8 getBoundingClientRect() por frame que
+        // quedaban obsoletos de todos modos al cambiar 'wdth'.
         elRect = el.getBoundingClientRect();
-        spanCenters = spans.map(s => {
-          const b = s.getBoundingClientRect();
-          return { x: b.left + b.width / 2, y: b.top + b.height / 2 };
-        });
       }
 
       function animate() {
-        mouse.x += (cursor.x - mouse.x) / 15;
-        mouse.y += (cursor.y - mouse.y) / 15;
+        const dx = cursor.x - mouse.x;
+        const dy = cursor.y - mouse.y;
+        mouse.x += dx * 0.1;  // lerp 0.1 (vs 0.067 antes): converge más rápido = menos frames activos
+        mouse.y += dy * 0.1;
 
         const max = elRect.width / 2 || 1;
+        const ey  = elRect.top + elRect.height / 2;
+        let anyWrite = false;
 
-        for (let i = 0; i < spans.length; i++) {
-          const c = spanCenters[i];
-          if (!c) continue;
-          const d = dist(mouse, c);
+        for (let i = 0; i < N; i++) {
+          // Posición del centro de cada letra calculada matemáticamente:
+          // no hay reads del DOM dentro del loop (cero reflows durante animación)
+          const ex = elRect.left + (i + 0.5) / N * elRect.width;
+          const d  = Math.hypot(mouse.x - ex, mouse.y - ey);
+
           const wght = Math.floor(attr(d, max, 100, 800));
           const wdth = Math.floor(attr(d, max, 5,  195));
           const ital = attr(d, max, 0, 1).toFixed(2);
-          spans[i].style.fontVariationSettings = `'wght' ${wght}, 'wdth' ${wdth}, 'ital' ${ital}`;
+
+          // Escribir en el DOM solo si el valor cambió:
+          // fontVariationSettings es caro (repaint de texto + sombras)
+          if (wght !== lastWght[i] || wdth !== lastWdth[i] || ital !== lastItal[i]) {
+            spans[i].style.fontVariationSettings = `'wght' ${wght}, 'wdth' ${wdth}, 'ital' ${ital}`;
+            lastWght[i] = wght;
+            lastWdth[i] = wdth;
+            lastItal[i] = ital;
+            anyWrite = true;
+          }
         }
 
+        // STOP-WHEN-CONVERGED: cuando el cursor virtual alcanzó al real
+        // y no hay ningún valor pendiente de escritura, el loop se detiene.
+        // Se reanuda automáticamente en el próximo mousemove/touchmove.
+        // Resultado: 0 rAF frames cuando el ratón está quieto.
+        if (Math.abs(dx) < 0.3 && Math.abs(dy) < 0.3 && !anyWrite) {
+          animating = false;
+          return;
+        }
         requestAnimationFrame(animate);
       }
 
-      // Inicializar caché y refrescarla en resize y carga de fuentes
-      requestAnimationFrame(cacheLayout);
-      window.addEventListener('resize', cacheLayout);
-      document.fonts.ready.then(cacheLayout);
+      function startAnimate() {
+        if (!animating) { animating = true; requestAnimationFrame(animate); }
+      }
 
-      // En móvil: touchmove ya actualiza cursor; orientación del dispositivo también lo mueve
+      window.addEventListener('mousemove', e => {
+        cursor.x = e.clientX; cursor.y = e.clientY;
+        startAnimate();
+      });
+      window.addEventListener('touchmove', e => {
+        cursor.x = e.touches[0].clientX;
+        cursor.y = e.touches[0].clientY;
+        startAnimate();
+      }, { passive: true });
+
+      // Inicializar rect y posición del cursor virtual en el centro
+      requestAnimationFrame(() => {
+        cacheLayout();
+        cursor.x = mouse.x = elRect.left + elRect.width  / 2;
+        cursor.y = mouse.y = elRect.top  + elRect.height / 2;
+        startAnimate();
+      });
+
+      window.addEventListener('resize', () => { cacheLayout(); startAnimate(); });
+      document.fonts.ready.then(() => { cacheLayout(); startAnimate(); });
+
       if (IS_MOBILE) {
         window.addEventListener('deviceorientation', e => {
           if (!elRect.width) return;
           cursor.x = elRect.left + elRect.width  / 2 + (e.gamma || 0) / 45 * elRect.width  / 2;
           cursor.y = elRect.top  + elRect.height / 2 + ((e.beta  || 45) - 45) / 45 * elRect.height / 2;
+          startAnimate();
         }, { passive: true });
       }
-      animate();
     })();
   </script>
 
@@ -1512,22 +1614,47 @@
     const isMob = navigator.maxTouchPoints > 0;
     const canvas1 = document.getElementById('pasta-3d');
     const canvas2 = document.getElementById('pasta-3d-bottom');
-    const W = Math.max(canvas1.offsetWidth, 75);
+    const W = Math.max(canvas1.offsetWidth || 120, 75);
 
-    // ── Renderer principal ──
+    // ── Un único renderer compartido (un solo contexto WebGL) ──
+    // Se renderiza a un canvas offscreen y se copia a cada canvas visible con drawImage,
+    // evitando dos contextos WebGL separados consumiendo memoria de shader/VAO/textura.
+    const offscreen = document.createElement('canvas');
+    offscreen.width  = W;
+    offscreen.height = W;
     const renderer = new THREE.WebGLRenderer({
-      canvas: canvas1,
+      canvas: offscreen,
       alpha: true,
-      antialias: !isMob
+      antialias: !isMob,
+      preserveDrawingBuffer: true  // requerido para drawImage cross-canvas
     });
     renderer.setSize(W, W);
     renderer.setPixelRatio(isMob ? Math.min(devicePixelRatio, 1.5) : Math.min(devicePixelRatio, 2));
     renderer.setClearColor(0x000000, 0);
 
-    const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(50, 1, 0.1, 100);
-    camera.position.z = 3.5;
+    // Canvas visibles reciben blits 2D desde el offscreen renderer
+    canvas1.width  = W; canvas1.height = W;
+    canvas2.width  = W; canvas2.height = W;
+    const ctx1 = canvas1.getContext('2d');
+    const ctx2 = canvas2.getContext('2d');
 
+    // ── Helper: construir escena+cámara+luces (evita duplicar código) ──
+    function buildScene() {
+      const scene  = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(50, 1, 0.1, 100);
+      camera.position.z = 3.5;
+      scene.add(new THREE.AmbientLight(0xffffff, 0.6));
+      const l1 = new THREE.PointLight(0xFF00CC, 5, 20);
+      l1.position.set(2, 2, 2); scene.add(l1);
+      const l2 = new THREE.PointLight(0x0044FF, 2.5, 20);
+      l2.position.set(-2, -1, 0); scene.add(l2);
+      return { scene, camera };
+    }
+
+    const { scene: scene1, camera: cam1 } = buildScene();
+    const { scene: scene2, camera: cam2 } = buildScene();
+
+    // ── Material compartido entre los dos modelos ──
     const mat = new THREE.MeshStandardMaterial({
       color: 0xDD0099,
       metalness: 0.75,
@@ -1536,130 +1663,101 @@
       emissiveIntensity: 0.5,
     });
 
-    scene.add(new THREE.AmbientLight(0xffffff, 0.6));
-    const l1 = new THREE.PointLight(0xFF00CC, 5, 20);
-    l1.position.set(2, 2, 2); scene.add(l1);
-    const l2 = new THREE.PointLight(0x0044FF, 2.5, 20);
-    l2.position.set(-2, -1, 0); scene.add(l2);
-
-    // ── Carga del dragón ──
-    new GLTFLoader().load('Dragon.glb', gltf => {
-      const model = gltf.scene;
-
-      // Centrar y escalar para que llene el canvas
-      const box = new THREE.Box3().setFromObject(model);
-      const center = box.getCenter(new THREE.Vector3());
-      const size = box.getSize(new THREE.Vector3());
-      const scale = 3.0 / Math.max(size.x, size.y, size.z);
-      model.scale.setScalar(scale);
-      model.position.copy(center.multiplyScalar(-scale));
-      const baseY = model.position.y;
-
-      // Aplicar material rosa/magenta a todos los meshes
-      model.traverse(child => {
-        if (child.isMesh) child.material = mat;
-      });
-
-      scene.add(model);
-
-      if (isMob) {
-        // ── Móvil: primera figura ~20fps ──
-        let _kf = 0;
-        (function loop() {
-          requestAnimationFrame(loop);
-          if (++_kf % 3 !== 0) return;
-          const t = performance.now() / 1000;
-          model.position.y = baseY + Math.sin(t * 1.5) * 0.22;
-          model.rotation.z = Math.sin(t * 0.9) * 0.11;
-          renderer.render(scene, camera);
-        })();
-
-        new ResizeObserver(() => {
-          const s = canvas1.offsetWidth;
-          if (s > 0) renderer.setSize(s, s);
-        }).observe(canvas1);
-
-        // ── Móvil: segunda figura ~10fps ──
-        const W2mob = Math.max(canvas2.offsetWidth, 75);
-        const renderer2 = new THREE.WebGLRenderer({ canvas: canvas2, alpha: true, antialias: false });
-        renderer2.setSize(W2mob, W2mob);
-        renderer2.setPixelRatio(1);
-        renderer2.setClearColor(0x000000, 0);
-
-        const scene2 = new THREE.Scene();
-        const camera2 = new THREE.PerspectiveCamera(50, 1, 0.1, 100);
-        camera2.position.z = 3.5;
-        scene2.add(new THREE.AmbientLight(0xffffff, 0.6));
-        const l1b = new THREE.PointLight(0xFF00CC, 5, 20);
-        l1b.position.set(2, 2, 2); scene2.add(l1b);
-        const l2b = new THREE.PointLight(0x0044FF, 2.5, 20);
-        l2b.position.set(-2, -1, 0); scene2.add(l2b);
-
-        const model2 = model.clone(true);
-        scene2.add(model2);
-
-        let _kf2 = 0;
-        (function loop2() {
-          requestAnimationFrame(loop2);
-          if (++_kf2 % 6 !== 0) return;
-          const t = performance.now() / 1000;
-          model2.position.y = baseY + Math.sin(t * 1.5 + 1.2) * 0.22;
-          model2.rotation.z = Math.sin(t * 0.9 + 1.2) * 0.11;
-          renderer2.render(scene2, camera2);
-        })();
-
-        new ResizeObserver(() => {
-          const s = canvas2.offsetWidth;
-          if (s > 0) renderer2.setSize(s, s);
-        }).observe(canvas2);
-
-      } else {
-        // ── Desktop: primera figura ──
-        (function loop() {
-          requestAnimationFrame(loop);
-          const t = performance.now() / 1000;
-          model.position.y = baseY + Math.sin(t * 1.5) * 0.22;
-          model.rotation.z = Math.sin(t * 0.9) * 0.11;
-          renderer.render(scene, camera);
-        })();
-
-        new ResizeObserver(() => {
-          const s = canvas1.offsetWidth;
-          if (s > 0) renderer.setSize(s, s);
-        }).observe(canvas1);
-
-        // ── Desktop: segunda figura ──
-        const W2 = Math.max(canvas2.offsetWidth, 75);
-        const renderer2 = new THREE.WebGLRenderer({ canvas: canvas2, alpha: true, antialias: true });
-        renderer2.setSize(W2, W2);
-        renderer2.setPixelRatio(Math.min(devicePixelRatio, 2));
-        renderer2.setClearColor(0x000000, 0);
-
-        const scene2 = new THREE.Scene();
-        const camera2 = new THREE.PerspectiveCamera(50, 1, 0.1, 100);
-        camera2.position.z = 3.5;
-        scene2.add(new THREE.AmbientLight(0xffffff, 0.6));
-        const l1b = new THREE.PointLight(0xFF00CC, 5, 20);
-        l1b.position.set(2, 2, 2); scene2.add(l1b);
-        const l2b = new THREE.PointLight(0x0044FF, 2.5, 20);
-        l2b.position.set(-2, -1, 0); scene2.add(l2b);
-
-        const model2 = model.clone(true);
-        scene2.add(model2);
-
-        (function loop2() {
-          requestAnimationFrame(loop2);
-          const t = performance.now() / 1000;
-          model2.position.y = baseY + Math.sin(t * 1.5 + 1.2) * 0.22;
-          model2.rotation.z = Math.sin(t * 0.9 + 1.2) * 0.11;
-          renderer2.render(scene2, camera2);
-        })();
-
-        new ResizeObserver(() => {
-          const s = canvas2.offsetWidth;
-          if (s > 0) renderer2.setSize(s, s);
-        }).observe(canvas2);
+    // ── IntersectionObserver: pausa render si el canvas sale del viewport ──
+    let vis1 = true, vis2 = true;
+    const io = new IntersectionObserver(entries => {
+      for (const e of entries) {
+        if (e.target === canvas1) vis1 = e.isIntersecting;
+        if (e.target === canvas2) vis2 = e.isIntersecting;
       }
+    }, { threshold: 0 });
+    io.observe(canvas1);
+    io.observe(canvas2);
+
+    let model1 = null, model2 = null;
+    let baseY   = 0;
+    let frameCount = 0;
+    // canvas2 tiene menor prioridad visual → se renderiza cada N frames
+    // ~30 fps desktop, ~10 fps móvil (vs el loop anterior de 60fps en desktop)
+    const RATE2 = isMob ? 6 : 2;
+
+    // ── Único loop RAF para ambas escenas ──
+    function loop(now) {
+      requestAnimationFrame(loop);
+      if (document.hidden) return; // pestaña inactiva: ahorra CPU/GPU/batería
+
+      frameCount++;
+      const t = now / 1000;
+
+      if (vis1 && model1) {
+        model1.position.y = baseY + Math.sin(t * 1.5) * 0.22;
+        model1.rotation.z = Math.sin(t * 0.9) * 0.11;
+        renderer.render(scene1, cam1);
+        ctx1.clearRect(0, 0, canvas1.width, canvas1.height);
+        ctx1.drawImage(offscreen, 0, 0, canvas1.width, canvas1.height);
+      }
+
+      if (vis2 && model2 && frameCount % RATE2 === 0) {
+        model2.position.y = baseY + Math.sin(t * 1.5 + 1.2) * 0.22;
+        model2.rotation.z = Math.sin(t * 0.9 + 1.2) * 0.11;
+        renderer.render(scene2, cam2);
+        ctx2.clearRect(0, 0, canvas2.width, canvas2.height);
+        ctx2.drawImage(offscreen, 0, 0, canvas2.width, canvas2.height);
+      }
+    }
+
+    // Reanudar loop cuando el usuario vuelve a la pestaña
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden) requestAnimationFrame(loop);
+    });
+
+    // ── Carga del modelo ──
+    new GLTFLoader().load('Dragon.glb', gltf => {
+      const m = gltf.scene;
+
+      // Centrar y escalar
+      const box    = new THREE.Box3().setFromObject(m);
+      const center = box.getCenter(new THREE.Vector3());
+      const size   = box.getSize(new THREE.Vector3());
+      const scale  = 3.0 / Math.max(size.x, size.y, size.z);
+      m.scale.setScalar(scale);
+      m.position.copy(center.multiplyScalar(-scale));
+      baseY = m.position.y;
+
+      // Aplicar material compartido al modelo original
+      m.traverse(child => { if (child.isMesh) child.material = mat; });
+      scene1.add(m);
+      model1 = m;
+
+      // Clonar: Three.js comparte BufferGeometry por referencia en clone(true)
+      const m2 = m.clone(true);
+      // Re-asignar el mismo material para garantizar referencia compartida
+      m2.traverse(child => { if (child.isMesh) child.material = mat; });
+      scene2.add(m2);
+      model2 = m2;
+
+      requestAnimationFrame(loop);
+
+      // ── ResizeObservers: un único renderer se redimensiona al tamaño mayor ──
+      function onResize() {
+        const s = Math.max(canvas1.offsetWidth, canvas2.offsetWidth, 75);
+        if (s !== offscreen.width) {
+          offscreen.width  = s;
+          offscreen.height = s;
+          renderer.setSize(s, s);
+        }
+        // Sincronizar dimensiones de píxel de los canvas 2D visibles
+        if (canvas1.offsetWidth > 0) {
+          canvas1.width  = canvas1.offsetWidth;
+          canvas1.height = canvas1.offsetWidth;
+        }
+        if (canvas2.offsetWidth > 0) {
+          canvas2.width  = canvas2.offsetWidth;
+          canvas2.height = canvas2.offsetWidth;
+        }
+      }
+      new ResizeObserver(onResize).observe(canvas1);
+      new ResizeObserver(onResize).observe(canvas2);
     });
   </script>
 
@@ -1670,6 +1768,7 @@
       const canvas = document.getElementById('cursor-trail');
       const ctx = canvas.getContext('2d');
       const particles = [];
+      const MAX_TRAIL = 80; // techo: evita crecimiento ilimitado en movimientos rápidos
 
       function resize() {
         canvas.width  = window.innerWidth;
@@ -1679,8 +1778,10 @@
       window.addEventListener('resize', resize);
 
       window.addEventListener('mousemove', e => {
+        if (particles.length >= MAX_TRAIL) return; // descarta si ya hay suficientes
         const n = Math.floor(Math.random() * 2) + 1;
         for (let i = 0; i < n; i++) {
+          if (particles.length >= MAX_TRAIL) break;
           particles.push({
             x:     e.clientX + (Math.random() - 0.5) * 8,
             y:     e.clientY + (Math.random() - 0.5) * 8,
