@@ -92,8 +92,9 @@
       0 0 60px rgba(160, 0, 110, 0.15);
   }
 
-  @keyframes hueCycle {
-    to { filter: hue-rotate(360deg); }
+  @keyframes btnBreathSoft {
+    0%, 100% { opacity: 0.92; }
+    50% { opacity: 1; }
   }
 
   .btn {
@@ -118,7 +119,7 @@
     -webkit-tap-highlight-color: transparent;
     transition: transform 0.1s ease;
     margin-top: 1rem;
-    animation: hueCycle 4s linear infinite;
+    animation: btnBreathSoft 3.2s ease-in-out infinite;
   }
 
   .btn:active {
@@ -704,7 +705,7 @@
     user-select: none;
     z-index: 3;
     padding: 0;
-    animation: socialBtnPulse 2.8s ease-in-out infinite;
+    animation: socialBtnBreath 3.4s ease-in-out infinite;
     transition: transform 0.3s cubic-bezier(0.34, 1.2, 0.64, 1), border-color 0.25s ease, box-shadow 0.25s ease;
   }
   .social-btn.open {
@@ -715,9 +716,9 @@
   }
   .social-btn:active { transform: scale(0.9); }
   .social-btn svg { width: 42%; height: 42%; fill: #DD0099; }
-  @keyframes socialBtnPulse {
-    0%, 100% { box-shadow: 0 0 10px rgba(221,0,153,0.25); border-color: rgba(221,0,153,0.55); }
-    50%       { box-shadow: 0 0 22px rgba(221,0,153,0.6), 0 0 40px rgba(221,0,153,0.15); border-color: rgba(221,0,153,0.9); }
+  @keyframes socialBtnBreath {
+    0%, 100% { opacity: 0.88; }
+    50% { opacity: 1; }
   }
 
   /* ── Panel de redes sociales ── */
@@ -758,15 +759,23 @@
     overflow: hidden;
     position: relative;
   }
-  /* stagger entrada */
-  .social-panel.open .social-card { animation: scCardIn 0.48s cubic-bezier(0.175, 0.885, 0.32, 1.4) both; }
+  /* Entrada ligera basada en "slide-up-fade" (tailwind-animations) */
+  .social-panel.open .social-card {
+    animation: twSlideUpFade 0.42s ease-out both;
+  }
   .social-panel.open .social-card:nth-child(1) { animation-delay: 0.04s; }
   .social-panel.open .social-card:nth-child(2) { animation-delay: 0.12s; }
   .social-panel.open .social-card:nth-child(3) { animation-delay: 0.20s; }
   .social-panel.open .social-card:nth-child(4) { animation-delay: 0.28s; }
-  @keyframes scCardIn {
-    from { opacity: 0; transform: translateY(22px) scale(0.75) rotate(-3deg); }
-    to   { opacity: 1; transform: translateY(0)     scale(1)    rotate(0deg); }
+  @keyframes twSlideUpFade {
+    from {
+      opacity: 0;
+      transform: translateY(12px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
   /* hover por plataforma */
   .social-card[data-platform="tiktok"],
@@ -859,6 +868,27 @@
     #pasta-3d-bottom {
       width: 68px;
       height: 68px;
+    }
+  }
+
+  /* ── Accesibilidad/rendimiento opcional ──
+     Solo se activa si el sistema pide reducir movimiento.
+     En PC normal (sin esta preferencia), la experiencia queda intacta. */
+  @media (prefers-reduced-motion: reduce) {
+    .btn,
+    .social-btn,
+    .dfti-opt,
+    .easter-title,
+    .sc-mystery,
+    .splash-text {
+      animation: none !important;
+    }
+
+    .social-panel,
+    .modal,
+    .overlay,
+    .stagger-item {
+      transition-duration: 0.01ms !important;
     }
   }
 </style>
