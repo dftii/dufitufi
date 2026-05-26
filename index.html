@@ -56,28 +56,6 @@
     position: relative;
   }
 
-  .mystery-btn {
-    font-family: 'Montserrat', sans-serif;
-    font-weight: 900;
-    font-size: clamp(0.45rem, 1.8vw, 0.75rem);
-    color: #DD0099;
-    background: #000000;
-    border: 1px solid rgba(221, 0, 153, 0.4);
-    border-radius: 2rem;
-    padding: 0.35rem 0.9rem;
-    cursor: pointer;
-    letter-spacing: 0.08em;
-    position: absolute;
-    top: clamp(10px, 3vh, 22px);
-    left: 50%;
-    transform: translateX(-50%);
-    -webkit-tap-highlight-color: transparent;
-    white-space: nowrap;
-    user-select: none;
-    z-index: 2;
-    box-shadow: 0 0 10px rgba(200, 0, 140, 0.2);
-  }
-
   .word {
     font-family: "Compressa VF", 'Montserrat', sans-serif;
     font-weight: 100;
@@ -90,40 +68,6 @@
       0 0 15px rgba(255, 255, 255, 0.3),
       0 0 35px rgba(255, 255, 255, 0.15),
       0 0 60px rgba(255, 255, 255, 0.08);
-  }
-
-  @keyframes btnBreathSoft {
-    0%, 100% { opacity: 0.92; }
-    50% { opacity: 1; }
-  }
-
-  .btn {
-    font-family: 'Montserrat', sans-serif;
-    font-weight: 900;
-    font-size: clamp(1.2rem, 6vw, 2rem);
-    color: #DD0099;
-    background: transparent;
-    border: 2px solid #DD0099;
-    border-radius: 50%;
-    width: clamp(2.8rem, 12vw, 4rem);
-    height: clamp(2.8rem, 12vw, 4rem);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    line-height: 1;
-    padding-bottom: 0.05em;
-    cursor: pointer;
-    box-shadow:
-      0 0 10px rgba(200, 0, 140, 0.3),
-      0 0 25px rgba(180, 0, 120, 0.15);
-    -webkit-tap-highlight-color: transparent;
-    transition: transform 0.1s ease;
-    margin-top: 1rem;
-    animation: btnBreathSoft 3.2s ease-in-out infinite;
-  }
-
-  .btn:active {
-    transform: scale(0.93);
   }
 
   .overlay {
@@ -181,52 +125,6 @@
     }
   }
 
-  .modal-title {
-    font-family: 'Montserrat', sans-serif;
-    font-weight: 900;
-    font-size: clamp(1rem, 5vw, 1.4rem);
-    color: #DD0099;
-    text-align: center;
-    letter-spacing: 0.05em;
-    text-shadow:
-      0 0 15px rgba(200, 0, 140, 0.4),
-      0 0 35px rgba(180, 0, 120, 0.2);
-    margin-bottom: 0.5rem;
-  }
-
-  .meaning {
-    font-family: 'Montserrat', sans-serif;
-    font-weight: 900;
-    font-size: clamp(0.7rem, 3.2vw, 0.9rem);
-    color: rgba(220, 220, 220, 0.75);
-    line-height: 1.6;
-    border-left: 2px solid rgba(180, 0, 120, 0.5);
-    padding-left: 0.9rem;
-    letter-spacing: 0.01em;
-  }
-
-  .meaning span {
-    color: #DD0099;
-    text-shadow: 0 0 10px rgba(200, 0, 140, 0.35);
-  }
-
-  .dufi-message {
-    font-family: 'Montserrat', sans-serif;
-    font-weight: 900;
-    font-size: clamp(1.1rem, 5.5vw, 1.6rem);
-    color: rgba(220, 220, 220, 0.8);
-    text-align: center;
-    letter-spacing: 0.04em;
-    line-height: 1.5;
-  }
-
-  .dufi-message span {
-    color: #DD0099;
-    text-shadow:
-      0 0 15px rgba(200, 0, 140, 0.4),
-      0 0 35px rgba(180, 0, 120, 0.2);
-  }
-
   .close-btn {
     font-family: 'Montserrat', sans-serif;
     font-weight: 900;
@@ -254,80 +152,6 @@
     pointer-events: none;
   }
 
-  /* ── Urban repeated background ── */
-  .bg-pasta {
-    position: fixed;
-    inset: 0;
-    z-index: 1;
-    overflow: hidden;
-    pointer-events: none;
-    display: none;
-    flex-direction: column;
-    justify-content: center;
-    contain: layout style paint;
-    transform: translateZ(0); /* promueve a capa GPU propia: las animaciones internas no repintan el resto de la página */
-  }
-
-  .bg-row {
-    font-family: 'Montserrat', sans-serif;
-    font-weight: 900;
-    font-size: clamp(1.4rem, 4.5vw, 2.8rem);
-    white-space: nowrap;
-    color: rgba(221, 0, 153, 0.07);
-    letter-spacing: 0.12em;
-    line-height: 1.7;
-    user-select: none;
-    -webkit-user-select: none;
-  }
-
-  .bg-row:nth-child(even) {
-    transform: translateX(-3rem);
-    color: rgba(221, 0, 153, 0.05);
-  }
-
-  /* ── Efectos ópticos aleatorios en dfti de fondo ── */
-  @keyframes dftiWave {
-    0%, 100% { transform: translateY(0) scaleX(1); }
-    33%  { transform: translateY(-2px) scaleX(1.02); }
-    66%  { transform: translateY(1px) scaleX(0.99); }
-  }
-  @keyframes dftiFlip {
-    0%, 80%, 100% { transform: scaleX(1); opacity: 1; }
-    88%  { transform: scaleX(-1); opacity: 0.35; }
-  }
-  @keyframes dftiRotateTint {
-    0%, 100% {
-      color: inherit;
-      text-shadow: none;
-    }
-    50% {
-      color: rgba(236, 118, 255, 0.12);
-      text-shadow: 0 0 3px rgba(236, 118, 255, 0.12);
-    }
-    78% {
-      color: rgba(255, 58, 170, 0.13);
-      text-shadow: 0 0 4px rgba(255, 58, 170, 0.13);
-    }
-  }
-  .dfti-opt { display: inline-block; }
-  .dfti-opt-wave {
-    animation:
-      dftiWave var(--dur,8s) var(--del,0s) ease-in-out infinite,
-      dftiRotateTint calc(var(--dur,8s) * 0.92) var(--del,0s) ease-in-out infinite;
-    will-change: transform, color, text-shadow;
-  }
-  .dfti-opt-flip {
-    animation:
-      dftiFlip var(--dur,13s) var(--del,0s) ease-in-out infinite,
-      dftiRotateTint calc(var(--dur,13s) * 0.86) var(--del,0s) ease-in-out infinite;
-    will-change: transform, opacity, color, text-shadow;
-  }
-
-  /* Sin animaciones dfti en dispositivos táctiles */
-  @media (hover: none) {
-    .dfti-opt { animation: none !important; }
-  }
-
   /* Elementos principales encima del fondo */
   .word-container {
     position: relative;
@@ -351,28 +175,6 @@
     text-rendering: optimizeSpeed; /* prioriza velocidad sobre hinting/kerning durante animación */
   }
 
-
-  .latin-text {
-    font-family: 'Montserrat', sans-serif;
-    font-weight: 900;
-    font-size: clamp(0.65rem, 2.8vw, 0.85rem);
-    color: rgba(220, 220, 220, 0.7);
-    line-height: 1.8;
-    font-style: italic;
-    text-align: center;
-    letter-spacing: 0.01em;
-  }
-
-  .latin-text span {
-    color: #DD0099;
-    text-shadow: 0 0 10px rgba(200, 0, 140, 0.35);
-    font-style: normal;
-  }
-
-  .btn {
-    position: relative;
-    z-index: 1;
-  }
 
   /* ── Mute button ── */
   .vol-ctrl {
@@ -600,32 +402,6 @@
   ::view-transition-old(root) { animation: vt-out 0.45s ease forwards; }
   ::view-transition-new(root) { animation: vt-in  0.45s ease forwards; }
 
-  /* ── Botón compartir ── */
-  .share-btn {
-    position: fixed;
-    top: clamp(10px, 2.5vh, 18px);
-    right: clamp(10px, 2.5vw, 18px);
-    z-index: 150;
-    font-family: 'Montserrat', sans-serif;
-    font-weight: 900;
-    font-size: clamp(0.55rem, 2vw, 0.8rem);
-    color: #DD0099;
-    background: #000000;
-    border: 1px solid rgba(221, 0, 153, 0.4);
-    border-radius: 2rem;
-    padding: 0.4rem 0.9rem;
-    letter-spacing: 0.06em;
-    display: flex;
-    align-items: center;
-    gap: 0.4rem;
-    -webkit-tap-highlight-color: transparent;
-    box-shadow: 0 0 10px rgba(200, 0, 140, 0.2);
-    user-select: none;
-    transition: opacity 0.1s ease;
-  }
-  .share-btn:active { opacity: 0.7; }
-  .share-btn svg { width: 1em; height: 1em; fill: #DD0099; flex-shrink: 0; }
-
   /* ── Toast ── */
   .toast {
     position: fixed;
@@ -655,7 +431,6 @@
   }
 
   /* ── text-wrap balance en textos modales ── */
-  .meaning, .modal-title, .dufi-message, .latin-text,
   .easter-sub, .secret-msg, .splash-text { text-wrap: balance; }
 
   /* ── Three.js pasta 3D (esquina) ── */
@@ -950,9 +725,6 @@
 
   <canvas id="stars-canvas" aria-hidden="true"></canvas>
 
-  <!-- Urban repeated PASTA background -->
-
-
   <div class="word-container" role="heading" aria-level="1">
     <span class="word" id="pasta" aria-label="DUFITUFI">DUFITUFI</span>
   </div>
@@ -1002,50 +774,6 @@
     </div>
   </div>
   <div class="pasta-phrase" id="pasta-phrase"></div>
-
-  <!-- OVERLAY PASTA -->
-  <div class="overlay" id="overlay-pasta" onclick="handleClick(event,'pasta')" role="dialog" aria-modal="true" aria-label="Poema: De Dracone">
-    <div class="modal" style="align-items:center; justify-content:center;">
-      <div class="modal-title">De Dracone</div>
-      <div class="latin-text">
-        <span>Ignifer</span> in caelo volat bestia magna,<br>
-        squamis auro tecta, voce tonat agna.<br><br>
-        <span>Flammas</span> ex ore fundit in noctem atram,<br>
-        terret mortales, vincit omnem matram.<br><br>
-        <span>Alis</span> vastis umbram fundit per terras,<br>
-        oculos ardet ut stellae in serras.<br><br>
-        <span>Nemo</span> audet contra draconem stare,<br>
-        nisi fortis heros gladio volare.
-      </div>
-      <button class="close-btn" onclick="closeModal('pasta')">CERRAR</button>
-    </div>
-  </div>
-
-  <!-- OVERLAY DUFI -->
-  <div class="overlay" id="overlay-dufi" onclick="handleClick(event,'dufi')" role="dialog" aria-modal="true" aria-label="Mensaje secreto">
-    <div class="modal" style="align-items:center; justify-content:center; min-height:30vh;">
-      <div class="dufi-message"><span>¿PASTA?</span></div>
-      <button class="close-btn" onclick="closeModal('dufi')">CERRAR</button>
-    </div>
-  </div>
-
-  <!-- OVERLAY LATIN -->
-  <div class="overlay" id="overlay-latin" onclick="handleClick(event,'latin')" role="dialog" aria-modal="true" aria-label="Poema: De Dracone">
-    <div class="modal" style="align-items:center; justify-content:center;">
-      <div class="modal-title">De Dracone</div>
-      <div class="latin-text">
-        <span>Ignifer</span> in caelo volat bestia magna,<br>
-        squamis auro tecta, voce tonat agna.<br><br>
-        <span>Flammas</span> ex ore fundit in noctem atram,<br>
-        terret mortales, vincit omnem matram.<br><br>
-        <span>Alis</span> vastis umbram fundit per terras,<br>
-        oculos ardet ut stellae in serras.<br><br>
-        <span>Nemo</span> audet contra draconem stare,<br>
-        nisi fortis heros gladio volare.
-      </div>
-      <button class="close-btn" onclick="closeModal('latin')">CERRAR</button>
-    </div>
-  </div>
 
   <!-- OVERLAY EASTER EGG -->
   <div class="overlay" id="overlay-easter" onclick="handleClick(event,'easter')" role="dialog" aria-modal="true" aria-label="Easter egg: PASTA">
@@ -1107,8 +835,6 @@
     function handleClick(e, id) {
       if (e.target === document.getElementById('overlay-' + id)) closeModal(id);
     }
-
-    // Fondo dfti desactivado para esta prueba.
 
     // ── Globals compartidos ──
     let cursorX = -9999, cursorY = -9999;
@@ -1333,18 +1059,6 @@
       setTimeout(() => t.remove(), 2100);
     }
 
-    async function shareIt() {
-      if (navigator.vibrate) navigator.vibrate(30);
-      try {
-        if (navigator.share) {
-          await navigator.share({ title: 'PASTA', text: 'tu ya sabes 🍝', url: location.href });
-        } else if (navigator.clipboard) {
-          await navigator.clipboard.writeText(location.href);
-          showToast('¡COPIADO!');
-        }
-      } catch(e) {}
-    }
-
     // ── Tilt 3D en el título (react-parallax-tilt portado a vanilla) ──
     (function() {
       const container = document.querySelector('.word-container');
@@ -1372,29 +1086,8 @@
       })();
     })();
 
-    // ── Efecto magnético en botones ──
+    // ── Efecto magnético en social cards ──
     (function() {
-      const STRENGTH = 0.42;
-      const targets = [
-        document.getElementById('btn'),
-        document.querySelector('.share-btn')
-      ];
-      targets.forEach(el => {
-        if (!el) return;
-        el.addEventListener('mousemove', e => {
-          if (!pastaEntered) return;
-          const r = el.getBoundingClientRect();
-          const x = (e.clientX - (r.left + r.width  / 2)) * STRENGTH;
-          const y = (e.clientY - (r.top  + r.height / 2)) * STRENGTH;
-          el.style.transition = 'transform 0.12s ease-out';
-          el.style.transform  = `translate(${x}px, ${y}px)`;
-        });
-        el.addEventListener('mouseleave', () => {
-          el.style.transition = 'transform 0.45s cubic-bezier(0.23,1,0.32,1)';
-          el.style.transform  = 'translate(0, 0)';
-        });
-      });
-
       // Social cards activas
       document.querySelectorAll('.social-card[data-platform="tiktok"], .social-card[data-platform="youtube"], .social-card[data-platform="x"]').forEach(el => {
         el.addEventListener('mousemove', e => {
