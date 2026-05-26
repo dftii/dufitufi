@@ -22,7 +22,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@900&display=swap" rel="stylesheet">
-<!-- Precargar el modelo 3D: empieza a descargarse en paralelo con el HTML -->
+<!-- precargo el modelo para que esté listo al entrar -->
 <link rel="preload" href="Dragon.glb" as="fetch" crossorigin="anonymous">
 <style>
   @font-face {
@@ -144,7 +144,7 @@
 
   .close-btn:active { transform: scale(0.93); }
 
-  /* ── Starfield canvas ── */
+  /* canvas del fondo de estrellas */
   #stars-canvas {
     position: fixed;
     inset: 0;
@@ -152,7 +152,7 @@
     pointer-events: none;
   }
 
-  /* Elementos principales encima del fondo */
+  /* el texto y demás van encima del canvas */
   .word-container {
     position: relative;
     z-index: 1;
@@ -171,12 +171,12 @@
 
   .pressure-letter {
     display: inline-block;
-    font-optical-sizing: none;     /* desactiva ajustes ópticos: menos cálculo por repaint */
-    text-rendering: optimizeSpeed; /* prioriza velocidad sobre hinting/kerning durante animación */
+    font-optical-sizing: none;     /* menos cálculo en repaint */
+    text-rendering: optimizeSpeed; /* velocidad sobre calidad, perfecto para animar */
   }
 
 
-  /* ── Mute button ── */
+  /* botón de volumen */
   .vol-ctrl {
     position: fixed;
     top: clamp(10px, 2.5vh, 18px);
@@ -244,7 +244,7 @@
     height: 3px;
   }
 
-  /* ── Splash screen ── */
+  /* pantalla de entrada */
   .splash {
     position: fixed;
     inset: 0;
@@ -290,7 +290,7 @@
     pointer-events: none;
   }
 
-  /* ── Cursor trail ── */
+  /* puntitos que siguen al cursor */
   .trail-dot {
     position: fixed;
     border-radius: 50%;
@@ -305,7 +305,7 @@
     100% { opacity: 0;   transform: translate(-50%, -50%) scale(0.1); }
   }
 
-  /* ── Click ripple ── */
+  /* onda rosa al hacer click */
   .ripple {
     position: fixed;
     width: 80px;
@@ -324,7 +324,7 @@
     100% { transform: translate(-50%, -50%) scale(2.8); opacity: 0; }
   }
 
-  /* ── Frase aleatoria ── */
+  /* frase debajo del título */
   .pasta-phrase {
     position: relative;
     z-index: 2;
@@ -344,7 +344,7 @@
     to   { opacity: 1; transform: translateY(0); }
   }
 
-  /* ── Modales easter egg y secreto ── */
+  /* modales de los easter eggs */
   .easter-title {
     font-family: 'Montserrat', sans-serif;
     font-weight: 900;
@@ -380,12 +380,12 @@
     text-shadow: 0 0 15px rgba(200,0,140,0.5);
   }
 
-  /* ── Cursor oculto (el trail ES el cursor) ── */
+  /* oculto el cursor normal, el trail hace de cursor */
   @media (pointer: fine) {
     * { cursor: none !important; }
   }
 
-  /* ── Animación de entrada de PASTA ── */
+  /* animación al entrar a la página */
   #pasta { opacity: 0; }
   #pasta.entering {
     animation: pastaIn 1s cubic-bezier(0.34, 1.2, 0.64, 1) forwards;
@@ -395,14 +395,14 @@
     to   { opacity: 1; transform: scale(1);    filter: blur(0); }
   }
 
-  /* ── View Transitions ── */
+  /* transición de página al entrar */
   @keyframes vt-out { to { opacity: 0; filter: blur(18px); } }
   @keyframes konami-flash { 0% { opacity:1; transform:scale(1); } 100% { opacity:0; transform:scale(1.6); } }
   @keyframes vt-in  { from { opacity: 0; } to { opacity: 1; } }
   ::view-transition-old(root) { animation: vt-out 0.45s ease forwards; }
   ::view-transition-new(root) { animation: vt-in  0.45s ease forwards; }
 
-  /* ── Toast ── */
+  /* mensajito de notificación */
   .toast {
     position: fixed;
     bottom: clamp(50px, 7vh, 70px);
@@ -430,10 +430,10 @@
     to { opacity: 0; transform: translateX(-50%) translateY(-6px); }
   }
 
-  /* ── text-wrap balance en textos modales ── */
+  /* que los textos de los modales queden bien */
   .easter-sub, .secret-msg, .splash-text { text-wrap: balance; }
 
-  /* ── Three.js pasta 3D (esquina) ── */
+  /* dragón 3D de la esquina */
   #pasta-3d {
     position: fixed;
     top: clamp(10px, 4vh, 36px);
@@ -470,7 +470,7 @@
     z-index: 9999;
   }
 
-  /* ── Stagger de entrada (Framer Motion style) ── */
+  /* animación de entrada en cascada */
   .stagger-item {
     opacity: 0;
     transform: translateY(12px);
@@ -481,7 +481,7 @@
     transform: translateY(0);
   }
 
-  /* ── Botón redes sociales ── */
+  /* botón que abre el panel de redes */
   .social-btn {
     position: fixed;
     right: clamp(12px, 3vw, 22px);
@@ -515,7 +515,7 @@
     50% { opacity: 1; }
   }
 
-  /* ── Panel de redes sociales ── */
+  /* panel con las tarjetas de redes */
   .social-panel {
     position: fixed;
     right: clamp(12px, 3vw, 22px);
@@ -552,7 +552,7 @@
     }
   }
 
-  /* ── Tarjetas ── */
+  /* tarjetas de cada red */
   .social-card {
     background: rgba(7, 7, 7, 0.92);
     border: 1px solid rgba(221, 0, 153, 0.18);
@@ -569,7 +569,7 @@
     overflow: hidden;
     position: relative;
   }
-  /* Entrada ligera basada en "slide-up-fade" (tailwind-animations) */
+  /* animación de entrada de las tarjetas */
   .social-panel.open .social-card {
     animation: twSlideUpFade 0.42s ease-out both;
   }
@@ -606,7 +606,7 @@
   .social-card[data-platform="youtube"]  { border-color: rgba(221, 0, 153, 0.45); }
   .social-card[data-platform="x"]        { border-color: rgba(221, 0, 153, 0.45); }
   .social-card[data-platform="instagram"] { border-color: rgba(255, 255, 255, 0.2); }
-  /* hover por plataforma */
+  /* hover específico por red */
   .social-card[data-platform="tiktok"],
   .social-card[data-platform="youtube"],
   .social-card[data-platform="x"] {
@@ -622,7 +622,7 @@
   .social-card[data-platform="tiktok"]:active,
   .social-card[data-platform="youtube"]:active,
   .social-card[data-platform="x"]:active { transform: scale(0.95); }
-  /* ícono */
+  /* ícono de la red */
   .sc-icon {
     width: clamp(1.5rem, 5.5vw, 2.1rem);
     height: clamp(1.5rem, 5.5vw, 2.1rem);
@@ -635,7 +635,7 @@
   .social-card[data-platform="tiktok"]  .sc-icon svg { fill: #ffffff; filter: drop-shadow(0 0 5px rgba(255,255,255,0.3)); }
   .social-card[data-platform="youtube"] .sc-icon svg { fill: #DD0099; filter: drop-shadow(0 0 5px rgba(221,0,153,0.55)); }
   .social-card[data-platform="x"]       .sc-icon svg { fill: #DD0099; filter: drop-shadow(0 0 4px rgba(221,0,153,0.4)); }
-  /* misterio instagram */
+  /* instagram misterioso por ahora */
   .sc-mystery {
     font-family: 'Montserrat', sans-serif;
     font-weight: 900;
@@ -648,7 +648,7 @@
     0%, 100% { opacity: 0.45; transform: scale(1); }
     50%       { opacity: 0.85; transform: scale(1.1); }
   }
-  /* nombre y handle */
+  /* nombre y arroba */
   .sc-name {
     font-family: 'Montserrat', sans-serif;
     font-weight: 900;
@@ -668,9 +668,7 @@
     letter-spacing: 0.03em;
   }
 
-  /* ── Touch targets mínimos (WCAG 2.5.5: 44×44 px) ──
-     En táctil el icono de volumen es demasiado pequeño; aumentamos el área
-     pulsable con padding compensado para no alterar el diseño visual. */
+  /* en móvil el icono del vol es muy pequeño, añado área extra sin cambiar lo visual */
   @media (hover: none) {
     .vol-ctrl svg {
       padding: 10px;
@@ -678,13 +676,11 @@
       touch-action: manipulation;
       -webkit-tap-highlight-color: transparent;
     }
-    /* Splash: asegurar que todo el overlay recibe el tap */
+    /* que todo el splash sea tappable */
     .splash { touch-action: manipulation; }
   }
 
-  /* ── Social panel en pantallas muy estrechas (<360 px) ──
-     Reduce el min-width de cada tarjeta para que el grid de 2 columnas
-     no desborde la pantalla ni se solape con el canvas 3D inferior. */
+  /* pantallas muy pequeñas: ajusto el panel para que no desborde */
   @media (max-width: 360px) {
     .social-panel {
       right: 8px;
@@ -700,9 +696,7 @@
     }
   }
 
-  /* ── Accesibilidad/rendimiento opcional ──
-     Solo se activa si el sistema pide reducir movimiento.
-     En PC normal (sin esta preferencia), la experiencia queda intacta. */
+  /* si el sistema pide menos movimiento, lo respeto */
   @media (prefers-reduced-motion: reduce) {
     .btn,
     .social-btn,
@@ -728,7 +722,7 @@
   <div class="word-container" role="heading" aria-level="1">
     <span class="word" id="pasta" aria-label="DUFITUFI">DUFITUFI</span>
   </div>
-  <!-- Botón redes sociales -->
+  <!-- botón de redes -->
   <button class="social-btn" id="social-btn" onclick="toggleSocial()" aria-label="Redes sociales">
     <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
       <circle cx="7"  cy="7"  r="2.5"/>
@@ -738,7 +732,7 @@
     </svg>
   </button>
 
-  <!-- Panel redes sociales -->
+  <!-- panel de redes -->
   <div class="social-panel" id="social-panel">
     <a class="social-card" data-platform="tiktok" href="https://www.tiktok.com/@dufitufi_" target="_blank" rel="noopener noreferrer">
       <div class="sc-icon">
@@ -775,7 +769,7 @@
   </div>
   <div class="pasta-phrase" id="pasta-phrase"></div>
 
-  <!-- OVERLAY EASTER EGG -->
+  <!-- easter egg del "pasta" -->
   <div class="overlay" id="overlay-easter" onclick="handleClick(event,'easter')" role="dialog" aria-modal="true" aria-label="Easter egg: PASTA">
     <div class="modal" style="align-items:center; justify-content:center; gap:0.8rem;">
       <div class="easter-title">🍝 PASTA 🍝</div>
@@ -784,7 +778,7 @@
     </div>
   </div>
 
-  <!-- OVERLAY SECRETO -->
+  <!-- overlay de los 10 clicks -->
   <div class="overlay" id="overlay-secret" onclick="handleClick(event,'secret')" role="dialog" aria-modal="true" aria-label="Mensaje secreto">
     <div class="modal" style="align-items:center; justify-content:center; gap:0.8rem;">
       <div class="secret-msg">eres de los nuestros,<br><span>ya sabes lo que hay</span></div>
@@ -792,9 +786,9 @@
     </div>
   </div>
 
-  <!-- Control de volumen arriba izquierda -->
+  <!-- control de volumen -->
   <div class="vol-ctrl" role="group" aria-label="Control de volumen">
-    <!-- role=button + tabindex: hace el icono de mute navegable por teclado -->
+    <!-- accesible por teclado -->
     <svg id="volIcon" viewBox="0 0 24 24" onclick="toggleVolMute()"
          role="button" tabindex="0" aria-label="Silenciar o activar sonido"
          onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleVolMute();}"
@@ -805,7 +799,7 @@
            aria-label="Volumen" oninput="setVolume(this.value)">
   </div>
 
-  <!-- Splash screen -->
+  <!-- splash de entrada -->
   <div class="splash" id="splash" onclick="enterPage()"
        role="button" tabindex="0" aria-label="Entrar a la p&#225;gina"
        onkeydown="if(event.key==='Enter')enterPage()">
@@ -816,8 +810,7 @@
   <canvas id="pasta-3d-bottom" aria-hidden="true"></canvas>
   <canvas id="cursor-trail"    aria-hidden="true"></canvas>
 
-  <!-- preload="none": el navegador NO descarga el MP3 hasta que el usuario pulsa la pantalla splash.
-       Ahorra hasta 5 MB de datos en cada visita. La descarga empieza al llamar audio.play() en enterPage(). -->
+  <!-- no descargo el audio hasta que el usuario entre, ahorra datos -->
   <audio id="audio-player" src="audio/Myke Towers - HORA CERO (Instrumental).mp3" preload="none"></audio>
 
   <script>
@@ -836,7 +829,7 @@
       if (e.target === document.getElementById('overlay-' + id)) closeModal(id);
     }
 
-    // ── Globals compartidos ──
+    // variables globales
     let cursorX = -9999, cursorY = -9999;
     let starR = 255, starG = 58, starB = 170;
     let pastaEntered = false;
@@ -847,7 +840,7 @@
       orientY = Math.max(-1, Math.min(1, ((e.beta  || 45) - 45) / 25));
     }, { passive: true });
 
-    // ── Starfield ──
+    // starfield
     (function() {
       const canvas = document.getElementById('stars-canvas');
       const ctx = canvas.getContext('2d');
@@ -879,9 +872,9 @@
       }
 
       function draw() {
-        // Pausa completa cuando la pestaña no está activa (ahorra CPU/GPU)
+        // si la pestaña no está activa, paro
         if (document.hidden) return;
-        // Throttle a ~30fps en móvil (salta frames impares)
+        // en móvil voy a 30fps, ahorra batería
         if (IS_MOBILE && ++_sFrame & 1) { _sRafId = requestAnimationFrame(draw); return; }
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         for (const s of stars) {
@@ -892,7 +885,7 @@
 
           s.x += s.vx;
           s.y += s.vy;
-          // repeler del cursor (solo desktop)
+          // las estrellas huyen del cursor
           if (!IS_MOBILE) {
             const _dx = s.x - cursorX, _dy = s.y - cursorY;
             const _d  = Math.sqrt(_dx * _dx + _dy * _dy);
@@ -919,18 +912,17 @@
       initStars();
       draw();
       window.addEventListener('resize', () => { resize(); initStars(); });
-      // Reanudar el loop del starfield cuando el usuario vuelve a la pestaña.
-      // cancelAnimationFrame evita el doble-loop (rAF pendiente + llamada directa).
+      // al volver a la pestaña, cancelo el rAF pendiente antes de reanudar (evita doble loop)
       document.addEventListener('visibilitychange', () => {
         if (!document.hidden) { cancelAnimationFrame(_sRafId); draw(); }
       });
     })();
 
-    // ── Audio ──
+    // audio
     const audio = document.getElementById('audio-player');
     audio.loop = true;
 
-    // ── Volumen ──
+    // volumen
     const _volPaths = {
       off: 'M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z',
       low:  'M18.5 12c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM5 9v6h4l5 5V4L9 9H5z',
@@ -938,7 +930,7 @@
     };
     function setVolume(val) {
       val = Number(val);
-      // curva: slider 50 → volumen 0.18  (0.5^2.5 ≈ 0.177)
+      // curva para que el slider 50% suene como un 50% de verdad
       audio.volume = Math.pow(val / 100, 2.5);
       audio.muted  = (val === 0);
       const slider = document.getElementById('volSlider');
@@ -955,7 +947,7 @@
     }
     setVolume(50);
 
-    // ── Splash: las estrellas del canvas ya son visibles sobre el splash. ──
+    // las estrellas ya se ven detrás del splash
 
     function enterPage() {
       if (navigator.vibrate) navigator.vibrate(40);
@@ -980,7 +972,7 @@
       }
     }
 
-    // ── Frases aleatorias ──
+    // frase aleatoria bajo el título
     (function() {
       const phrases = [
         'hey'
@@ -989,7 +981,7 @@
         phrases[Math.floor(Math.random() * phrases.length)];
     })();
 
-    // ── Cursor trail + actualización cursorX/Y ──
+    // trail del cursor
     (function() {
       let lastTrail = 0;
       function spawnTrail(x, y) {
@@ -1013,7 +1005,7 @@
       }, { passive: true });
     })();
 
-    // ── Click ripple ──
+    // onda al hacer click
     (function() {
       function spawnRipple(x, y) {
         const r = document.createElement('div');
@@ -1029,7 +1021,7 @@
       }, { passive: true });
     })();
 
-    // ── Easter egg: escribe P·A·S·T·A en el teclado ──
+    // easter egg: escribe "pasta" en el teclado
     (function() {
       const seq = 'pasta';
       let idx = 0;
@@ -1043,7 +1035,7 @@
       });
     })();
 
-    // ── Secreto: 10 clicks rápidos en cualquier punto ──
+    // 10 clicks rápidos = modal secreto
     (function() {
       let clicks = 0, timer = null;
       document.addEventListener('click', () => {
@@ -1054,7 +1046,7 @@
       });
     })();
 
-    // ── Web Share / Compartir ──
+    // toast
     function showToast(msg) {
       const t = document.createElement('div');
       t.className = 'toast';
@@ -1063,7 +1055,7 @@
       setTimeout(() => t.remove(), 2100);
     }
 
-    // ── Tilt 3D en el título (react-parallax-tilt portado a vanilla) ──
+    // efecto tilt 3D en el título
     (function() {
       const container = document.querySelector('.word-container');
       let tiltX = 0, tiltY = 0, targetX = 0, targetY = 0;
@@ -1076,7 +1068,7 @@
       window.addEventListener('mouseleave', () => { targetX = 0; targetY = 0; });
       let _tf = 0;
       (function loop() {
-        // Throttle a ~30fps en móvil
+        // en móvil voy a 30fps
         if (!IS_MOBILE || ++_tf & 1) {
           const ox = -orientY * 10, oy = orientX * 10;
           tiltX += ((targetX + ox) - tiltX) * 0.08;
@@ -1090,9 +1082,9 @@
       })();
     })();
 
-    // ── Efecto magnético en social cards ──
+    // efecto magnético en las tarjetas de redes
     (function() {
-      // Social cards activas
+      // solo las activas, no instagram
       document.querySelectorAll('.social-card[data-platform="tiktok"], .social-card[data-platform="youtube"], .social-card[data-platform="x"]').forEach(el => {
         el.addEventListener('mousemove', e => {
           if (!pastaEntered) return;
@@ -1109,7 +1101,7 @@
       });
     })();
 
-    // ── Konami Code easter egg ──
+    // konami code
     (function() {
       const KONAMI = ['ArrowUp','ArrowUp','ArrowDown','ArrowDown',
                       'ArrowLeft','ArrowRight','ArrowLeft','ArrowRight','b','a'];
@@ -1119,7 +1111,7 @@
         if (buf.length > KONAMI.length) buf.shift();
         if (buf.join() === KONAMI.join()) {
           buf = [];
-          // Flash overlay
+          // flash de colores
           const flash = document.createElement('div');
           flash.style.cssText =
             'position:fixed;inset:0;z-index:9999;pointer-events:none;' +
@@ -1127,11 +1119,11 @@
             'animation:konami-flash 0.7s ease-out forwards';
           document.body.appendChild(flash);
           setTimeout(() => flash.remove(), 800);
-          // Toast
+          // toast
           showToast('⬆⬆⬇⬇⬅➡⬅➡ BA 🎮 KONAMI!');
-          // Vibración rítmica
+          // vibración
           if (navigator.vibrate) navigator.vibrate([80,40,80,40,200]);
-          // Rainbow en PASTA 6 segundos
+          // rainbow en el título 6 segundos
           const pasta = document.getElementById('pasta');
           pasta.classList.add('rainbow');
           setTimeout(() => pasta.classList.remove('rainbow'), 6000);
@@ -1139,7 +1131,7 @@
       });
     })();
 
-    // ── Escape: cierra cualquier modal abierto ──
+    // escape cierra los modales
     document.addEventListener('keydown', e => {
       if (e.key !== 'Escape') return;
       document.querySelectorAll('.overlay.visible').forEach(o => {
@@ -1148,7 +1140,7 @@
     });
   </script>
 
-  <!-- Text Pressure effect on DUFITUFI -->
+  <!-- efecto de presión en el texto -->
   <script>
     (function initTextPressure() {
       const el = document.getElementById('pasta');
@@ -1169,8 +1161,7 @@
       const cursor = { x: 0, y: 0 };
       const attr   = (d, max, min, range) => Math.max(min, range - Math.abs(range * d / max));
 
-      // Typed arrays para dirty-check sin object allocations
-      // Evitan escribir fontVariationSettings cuando el valor no ha cambiado
+      // typed arrays para no escribir en el DOM si no cambia nada
       const lastWght = new Int16Array(N).fill(-1);
       const lastWdth = new Int16Array(N).fill(-1);
       const lastItal = new Array(N).fill('');
@@ -1179,16 +1170,14 @@
       let animating = false;
 
       function cacheLayout() {
-        // Sólo cachea el rect del contenedor: las posiciones de letra se calculan
-        // matemáticamente, evitando 8 getBoundingClientRect() por frame que
-        // quedaban obsoletos de todos modos al cambiar 'wdth'.
+        // cacheo solo el rect del contenedor, las posiciones de letra las calculo
         elRect = el.getBoundingClientRect();
       }
 
       function animate() {
         const dx = cursor.x - mouse.x;
         const dy = cursor.y - mouse.y;
-        mouse.x += dx * 0.1;  // lerp 0.1 (vs 0.067 antes): converge más rápido = menos frames activos
+        mouse.x += dx * 0.1;  // lerp rápido para converger antes y parar el loop
         mouse.y += dy * 0.1;
 
         const max = elRect.width / 2 || 1;
@@ -1196,8 +1185,7 @@
         let anyWrite = false;
 
         for (let i = 0; i < N; i++) {
-          // Posición del centro de cada letra calculada matemáticamente:
-          // no hay reads del DOM dentro del loop (cero reflows durante animación)
+          // posición de cada letra por cálculo, sin tocar el DOM
           const ex = elRect.left + (i + 0.5) / N * elRect.width;
           const d  = Math.hypot(mouse.x - ex, mouse.y - ey);
 
@@ -1205,8 +1193,7 @@
           const wdth = Math.floor(attr(d, max, 5,  195));
           const ital = attr(d, max, 0, 1).toFixed(2);
 
-          // Escribir en el DOM solo si el valor cambió:
-          // fontVariationSettings es caro (repaint de texto + sombras)
+          // solo escribo si cambió, fontVariationSettings es costoso
           if (wght !== lastWght[i] || wdth !== lastWdth[i] || ital !== lastItal[i]) {
             spans[i].style.fontVariationSettings = `'wght' ${wght}, 'wdth' ${wdth}, 'ital' ${ital}`;
             lastWght[i] = wght;
@@ -1216,10 +1203,7 @@
           }
         }
 
-        // STOP-WHEN-CONVERGED: cuando el cursor virtual alcanzó al real
-        // y no hay ningún valor pendiente de escritura, el loop se detiene.
-        // Se reanuda automáticamente en el próximo mousemove/touchmove.
-        // Resultado: 0 rAF frames cuando el ratón está quieto.
+        // cuando el cursor llegó al target y no hay cambios, paro el loop
         if (Math.abs(dx) < 0.3 && Math.abs(dy) < 0.3 && !anyWrite) {
           animating = false;
           return;
@@ -1263,7 +1247,7 @@
     })();
   </script>
 
-  <!-- Panel redes sociales: toggle y cierre exterior -->
+  <!-- lógica para abrir/cerrar el panel de redes -->
   <script>
     (function() {
       const socialBtn   = document.getElementById('social-btn');
@@ -1306,7 +1290,7 @@
     })();
   </script>
 
-  <!-- Three.js: dragón 3D con GLTFLoader -->
+  <!-- dragón 3D con Three.js -->
   <script type="module">
     import * as THREE from 'three';
     import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
@@ -1316,9 +1300,7 @@
     const canvas2 = document.getElementById('pasta-3d-bottom');
     const W = Math.max(canvas1.offsetWidth || 120, 75);
 
-    // ── Un único renderer compartido (un solo contexto WebGL) ──
-    // Se renderiza a un canvas offscreen y se copia a cada canvas visible con drawImage,
-    // evitando dos contextos WebGL separados consumiendo memoria de shader/VAO/textura.
+    // un solo renderer para los dos dragónes, renderizo offscreen y copio con drawImage
     const offscreen = document.createElement('canvas');
     offscreen.width  = W;
     offscreen.height = W;
@@ -1332,13 +1314,13 @@
     renderer.setPixelRatio(isMob ? Math.min(devicePixelRatio, 1.5) : Math.min(devicePixelRatio, 2));
     renderer.setClearColor(0x000000, 0);
 
-    // Canvas visibles reciben blits 2D desde el offscreen renderer
+    // los canvas visibles reciben el render copiado
     canvas1.width  = W; canvas1.height = W;
     canvas2.width  = W; canvas2.height = W;
     const ctx1 = canvas1.getContext('2d');
     const ctx2 = canvas2.getContext('2d');
 
-    // ── Helper: construir escena+cámara+luces (evita duplicar código) ──
+    // helper para escena+cámara+luces, los dos dragónes usan lo mismo
     function buildScene() {
       const scene  = new THREE.Scene();
       const camera = new THREE.PerspectiveCamera(50, 1, 0.1, 100);
@@ -1354,7 +1336,7 @@
     const { scene: scene1, camera: cam1 } = buildScene();
     const { scene: scene2, camera: cam2 } = buildScene();
 
-    // ── Material compartido entre los dos modelos ──
+    // material rosa compartido entre los dos modelos
     const mat = new THREE.MeshStandardMaterial({
       color: 0xDD0099,
       metalness: 0.75,
@@ -1363,7 +1345,7 @@
       emissiveIntensity: 0.5,
     });
 
-    // ── IntersectionObserver: pausa render si el canvas sale del viewport ──
+    // si el canvas no está visible, no renderizo
     let vis1 = true, vis2 = true;
     const io = new IntersectionObserver(entries => {
       for (const e of entries) {
@@ -1377,14 +1359,13 @@
     let model1 = null, model2 = null;
     let baseY   = 0;
     let frameCount = 0;
-    // canvas2 tiene menor prioridad visual → se renderiza cada N frames
-    // ~30 fps desktop, ~10 fps móvil (vs el loop anterior de 60fps en desktop)
+    // el segundo dragón se renderiza menos frames, no se nota visualmente
     const RATE2 = isMob ? 6 : 2;
 
-    // ── Único loop RAF para ambas escenas ──
+    // loop único para los dos dragónes
     function loop(now) {
       requestAnimationFrame(loop);
-      if (document.hidden) return; // pestaña inactiva: ahorra CPU/GPU/batería
+      if (document.hidden) return; // si está en background, no renderizo
 
       frameCount++;
       const t = now / 1000;
@@ -1411,11 +1392,11 @@
       if (!document.hidden) requestAnimationFrame(loop);
     });
 
-    // ── Carga del modelo ──
+    // cargo el GLB
     new GLTFLoader().load('Dragon.glb', gltf => {
       const m = gltf.scene;
 
-      // Centrar y escalar
+      // centro y escalo el modelo
       const box    = new THREE.Box3().setFromObject(m);
       const center = box.getCenter(new THREE.Vector3());
       const size   = box.getSize(new THREE.Vector3());
@@ -1424,21 +1405,20 @@
       m.position.copy(center.multiplyScalar(-scale));
       baseY = m.position.y;
 
-      // Aplicar material compartido al modelo original
+      // aplico el material rosa
       m.traverse(child => { if (child.isMesh) child.material = mat; });
       scene1.add(m);
       model1 = m;
 
-      // Clonar: Three.js comparte BufferGeometry por referencia en clone(true)
+      // clono para el segundo dragón con el mismo material
       const m2 = m.clone(true);
-      // Re-asignar el mismo material para garantizar referencia compartida
       m2.traverse(child => { if (child.isMesh) child.material = mat; });
       scene2.add(m2);
       model2 = m2;
 
       requestAnimationFrame(loop);
 
-      // ── ResizeObservers: un único renderer se redimensiona al tamaño mayor ──
+      // al redimensionar, actualizo el renderer
       function onResize() {
         const s = Math.max(canvas1.offsetWidth, canvas2.offsetWidth, 75);
         if (s !== offscreen.width) {
@@ -1446,7 +1426,7 @@
           offscreen.height = s;
           renderer.setSize(s, s);
         }
-        // Sincronizar dimensiones de píxel de los canvas 2D visibles
+        // actualizo los canvas visibles
         if (canvas1.offsetWidth > 0) {
           canvas1.width  = canvas1.offsetWidth;
           canvas1.height = canvas1.offsetWidth;
@@ -1461,14 +1441,14 @@
     });
   </script>
 
-  <!-- Cursor trail (solo desktop) -->
+  <!-- trail del cursor, solo en desktop -->
   <script>
     (function() {
       if (navigator.maxTouchPoints > 0) return;
       const canvas = document.getElementById('cursor-trail');
       const ctx = canvas.getContext('2d');
       const particles = [];
-      const MAX_TRAIL = 80; // techo: evita crecimiento ilimitado en movimientos rápidos
+      const MAX_TRAIL = 80; // límite para no crear infinitas partículas
 
       function resize() {
         canvas.width  = window.innerWidth;
@@ -1478,7 +1458,7 @@
       window.addEventListener('resize', resize);
 
       window.addEventListener('mousemove', e => {
-        if (particles.length >= MAX_TRAIL) return; // descarta si ya hay suficientes
+        if (particles.length >= MAX_TRAIL) return; // si ya hay bastantes, ignoro
         const n = Math.floor(Math.random() * 2) + 1;
         for (let i = 0; i < n; i++) {
           if (particles.length >= MAX_TRAIL) break;
