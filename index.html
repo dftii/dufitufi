@@ -854,6 +854,7 @@
       const STAR_COUNT = IS_MOBILE ? 50 : 160;
       let stars = [];
       let _sFrame = 0;
+      let _sRafId;
 
       function resize() {
         canvas.width  = window.innerWidth;
@@ -881,7 +882,7 @@
         // Pausa completa cuando la pestaña no está activa (ahorra CPU/GPU)
         if (document.hidden) return;
         // Throttle a ~30fps en móvil (salta frames impares)
-        if (IS_MOBILE && ++_sFrame & 1) { requestAnimationFrame(draw); return; }
+        if (IS_MOBILE && ++_sFrame & 1) { _sRafId = requestAnimationFrame(draw); return; }
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         for (const s of stars) {
           ctx.beginPath();
@@ -911,15 +912,18 @@
           if (s.y < -2) s.y = canvas.height + 2;
           if (s.y > canvas.height + 2) s.y = -2;
         }
-        requestAnimationFrame(draw);
+        _sRafId = requestAnimationFrame(draw);
       }
 
       resize();
       initStars();
       draw();
       window.addEventListener('resize', () => { resize(); initStars(); });
-      // Reanudar el loop del starfield cuando el usuario vuelve a la pestaña
-      document.addEventListener('visibilitychange', () => { if (!document.hidden) draw(); });
+      // Reanudar el loop del starfield cuando el usuario vuelve a la pestaña.
+      // cancelAnimationFrame evita el doble-loop (rAF pendiente + llamada directa).
+      document.addEventListener('visibilitychange', () => {
+        if (!document.hidden) { cancelAnimationFrame(_sRafId); draw(); }
+      });
     })();
 
     // ── Audio ──
