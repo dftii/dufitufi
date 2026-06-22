@@ -28,7 +28,7 @@ body {
 .word {
   font-family: "Roboto Flex", sans-serif;
   font-weight: 100;
-  font-size: clamp(4.5rem, 30vw, 17rem);
+  font-size: clamp(3.5rem, 24vw, 13rem);
   letter-spacing: 0;
   color: white;
   user-select: none;
