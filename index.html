@@ -479,6 +479,7 @@
 
       let elRect    = { left: 0, top: 0, width: 1, height: 1 };
       let animating = false;
+      let fontReady = false;
 
       function cacheLayout() {
         // cacheo solo el rect del contenedor, las posiciones de letra las calculo
@@ -486,12 +487,15 @@
       }
 
       function animate() {
+        // si la página no está activa, no animo
+        if (document.hidden) return;
+        
         const dx = cursor.x - mouse.x;
         const dy = cursor.y - mouse.y;
         mouse.x += dx * 0.1;  // lerp rápido para converger antes y parar el loop
         mouse.y += dy * 0.1;
 
-        const max = elRect.width / 2 || 1;
+        const max = Math.max(elRect.width / 2, 1);
         const ey  = elRect.top + elRect.height / 2;
         let anyWrite = false;
 
@@ -506,7 +510,9 @@
 
           // solo escribo si cambió, fontVariationSettings es costoso
           if (wght !== lastWght[i] || wdth !== lastWdth[i] || ital !== lastItal[i]) {
-            spans[i].style.fontVariationSettings = `'wght' ${wght}, 'wdth' ${wdth}, 'ital' ${ital}`;
+            if (fontReady) {
+              spans[i].style.fontVariationSettings = `'wght' ${wght}, 'wdth' ${wdth}, 'ital' ${ital}`;
+            }
             lastWght[i] = wght;
             lastWdth[i] = wdth;
             lastItal[i] = ital;
@@ -523,8 +529,30 @@
       }
 
       function startAnimate() {
-        if (!animating) { animating = true; requestAnimationFrame(animate); }
+        if (!animating && fontReady) { animating = true; requestAnimationFrame(animate); }
       }
+
+      // Esperar a que la fuente variable esté cargada
+      Promise.all([
+        document.fonts.load('1em "Roboto Flex"'),
+        new Promise(resolve => {
+          if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', resolve);
+          } else {
+            resolve();
+          }
+        })
+      ]).then(() => {
+        fontReady = true;
+        cacheLayout();
+        startAnimate();
+        console.log('✓ Efecto de presión activado');
+      }).catch(err => {
+        console.warn('⚠ Fuente Roboto Flex no disponible:', err);
+        fontReady = true;  // intentar de todas formas
+        cacheLayout();
+        startAnimate();
+      });
 
       window.addEventListener('mousemove', e => {
         cursor.x = e.clientX; cursor.y = e.clientY;
@@ -536,16 +564,10 @@
         startAnimate();
       }, { passive: true });
 
-      // Inicializar rect y posición del cursor virtual en el centro
-      requestAnimationFrame(() => {
-        cacheLayout();
-        cursor.x = mouse.x = elRect.left + elRect.width  / 2;
-        cursor.y = mouse.y = elRect.top  + elRect.height / 2;
-        startAnimate();
-      });
-
       window.addEventListener('resize', () => { cacheLayout(); startAnimate(); });
-      document.fonts.ready.then(() => { cacheLayout(); startAnimate(); });
+      window.addEventListener('visibilitychange', () => {
+        if (!document.hidden) startAnimate();
+      });
 
       if (IS_MOBILE) {
         window.addEventListener('deviceorientation', e => {

@@ -1,9 +1,5 @@
-﻿@font-face {
-  font-family: "Compressa VF";
-  src: url("https://res.cloudinary.com/dr6lvwubh/raw/upload/v1529908256/CompressaPRO-GX.woff2") format("woff2");
-  font-style: normal;
-  font-display: swap;
-}
+﻿/* Fuente variable de Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Flex:wdth,wght@75..100,100..1000&display=swap');
 
 *, *::before, *::after {
   margin: 0;
@@ -30,7 +26,7 @@ body {
 }
 
 .word {
-  font-family: "Compressa VF", 'Montserrat', sans-serif;
+  font-family: "Roboto Flex", sans-serif;
   font-weight: 100;
   font-size: clamp(4.5rem, 30vw, 17rem);
   letter-spacing: 0;
