@@ -1,0 +1,6 @@
+# Ignore local debug and temporary files
+live.html
+remote-index.html
+job-log-snippet.txt
+jobs-*.json
+*.zip
