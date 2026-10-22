@@ -1,0 +1,64 @@
+/* estilos base */
+
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background-color: #000000;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
+  min-height: 100vh;
+  min-height: 100dvh;
+  position: relative;
+}
+
+/* canvas del fondo de estrellas */
+#stars-canvas {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* el texto y demás van encima del canvas */
+.word-container {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  will-change: transform;
+}
+
+/* transición de página al entrar */
+@keyframes vt-out { to { opacity: 0; filter: blur(18px); } }
+@keyframes vt-in  { from { opacity: 0; } to { opacity: 1; } }
+::view-transition-old(root) { animation: vt-out 0.45s ease forwards; }
+::view-transition-new(root) { animation: vt-in  0.45s ease forwards; }
+
+/* flash del konami code (lo usa .konami-flash en ui.css) */
+@keyframes konami-flash { 0% { opacity: 1; transform: scale(1); } 100% { opacity: 0; transform: scale(1.6); } }
+
+/* sin movimiento: la transición de página no anima */
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+}

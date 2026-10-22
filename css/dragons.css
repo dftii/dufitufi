@@ -1,0 +1,44 @@
+/* dragones 3D de las esquinas */
+
+/* lo común a los dos dragones */
+#pasta-3d,
+#pasta-3d-bottom {
+  position: fixed;
+  width: clamp(90px, 16vw, 140px);
+  height: clamp(90px, 16vw, 140px);
+  z-index: 2;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 1.4s ease 0.5s;
+  filter: drop-shadow(0 0 18px rgba(221,0,153,0.6));
+}
+#pasta-3d.visible,
+#pasta-3d-bottom.visible { opacity: 1; }
+
+/* arriba a la derecha */
+#pasta-3d {
+  top: clamp(10px, 4vh, 36px);
+  right: clamp(10px, 4vw, 36px);
+}
+
+/* abajo a la izquierda */
+#pasta-3d-bottom {
+  bottom: clamp(10px, 4vh, 36px);
+  left: clamp(10px, 4vw, 36px);
+}
+
+/* pantallas muy pequeñas: dragón inferior más pequeño */
+@media (max-width: 360px) {
+  #pasta-3d-bottom {
+    width: 68px;
+    height: 68px;
+  }
+}
+
+/* sin movimiento: aparición rápida y sin retraso */
+@media (prefers-reduced-motion: reduce) {
+  #pasta-3d,
+  #pasta-3d-bottom {
+    transition: opacity 0.3s ease;
+  }
+}

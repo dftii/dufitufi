@@ -1,0 +1,81 @@
+/* cursor personalizado: punto con resplandor rosa + estela en canvas */
+
+/* el cursor nativo solo se oculta cuando el JS activa el propio
+   (si el JS falla, o hay un <dialog> modal abierto, se ve el normal) */
+html.has-custom-cursor,
+html.has-custom-cursor * {
+  cursor: none !important;
+}
+
+#cursor-trail {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  pointer-events: none;
+  z-index: 9999;
+}
+
+/* ancla de 0x0 que sigue al puntero (transform desde JS, sin layout);
+   el punto y el aro son sus pseudo-elementos, centrados en ella */
+#cursor-dot {
+  position: fixed;
+  top: 0; left: 0;
+  width: 0; height: 0;
+  pointer-events: none;
+  z-index: 10000;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  will-change: transform;
+}
+#cursor-dot.is-visible { opacity: 1; }
+
+#cursor-dot::before,
+#cursor-dot::after {
+  content: '';
+  position: absolute;
+  border-radius: 50%;
+  transition: transform 0.18s cubic-bezier(0.34, 1.4, 0.64, 1), opacity 0.18s ease;
+}
+
+/* punto blanco de 8px */
+#cursor-dot::before {
+  top: -4px; left: -4px;
+  width: 8px; height: 8px;
+  background: #fff;
+  box-shadow:
+    0 0 6px 1px rgba(255, 255, 255, 0.75),
+    0 0 14px 4px rgba(221, 0, 153, 0.75),
+    0 0 26px 8px rgba(221, 0, 153, 0.25);
+}
+
+/* aro: oculto hasta pasar por encima de algo interactivo */
+#cursor-dot::after {
+  top: -17px; left: -17px;
+  width: 34px; height: 34px;
+  border: 1.5px solid rgba(255, 58, 170, 0.95);
+  box-shadow:
+    0 0 12px rgba(221, 0, 153, 0.55),
+    inset 0 0 10px rgba(221, 0, 153, 0.3);
+  opacity: 0;
+  transform: scale(0.4);
+}
+
+/* sobre botones, sliders, etc: el punto se encoge y aparece el aro */
+#cursor-dot.is-hover::before { transform: scale(0.5); }
+#cursor-dot.is-hover::after  { opacity: 1; transform: scale(1); }
+
+/* al pulsar: se aplasta un poco */
+#cursor-dot.is-down::before { transform: scale(0.7); }
+#cursor-dot.is-down.is-hover::before { transform: scale(0.35); }
+#cursor-dot.is-down.is-hover::after { transform: scale(0.78); }
+
+/* sin cursor propio (táctil, JS caído, modal abierto) el punto no existe */
+html:not(.has-custom-cursor) #cursor-dot { display: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  #cursor-dot,
+  #cursor-dot::before,
+  #cursor-dot::after {
+    transition-duration: 0.01ms;
+  }
+}
