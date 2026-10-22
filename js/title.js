@@ -7,6 +7,8 @@ import {
 const WGHT = [100, 800];
 const WDTH = [75, 120];
 const SLNT = [0, -10];
+// niveles de "presión" por letra (~17 de wght por paso: no se nota el salto)
+const LEVELS = 40;
 
 const MAX_TILT = 16;       // grados de inclinación con el ratón
 const ORIENT_TILT = 10;    // grados por unidad de inclinación del móvil
@@ -132,11 +134,12 @@ export function initTitle() {
         const d = Math.hypot(focus.x - centers[i * 2], focus.y - centers[i * 2 + 1]);
         t = clamp(1 - d / titleHalf, 0, 1) * strength;
       }
-      // cuantizo a pasos de 1/100 del recorrido para no reescribir por nada
-      const q = Math.round(t * 100);
+      // cuantizo a LEVELS pasos: cada cambio de nivel repinta la letra con su brillo,
+      // y con pocos niveles el navegador reutiliza las instancias de la fuente ya creadas
+      const q = Math.round(t * LEVELS);
       if (q !== lastKey[i]) {
         lastKey[i] = q;
-        const style = variation(q / 100);
+        const style = variation(q / LEVELS);
         if (style !== lastStyle[i]) {
           lastStyle[i] = style;
           spans[i].style.fontVariationSettings = style;

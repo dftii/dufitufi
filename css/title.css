@@ -12,16 +12,19 @@
   color: white;
   user-select: none;
   -webkit-user-select: none;
+  /* brillo en 2 capas (antes 3): casi igual y bastante más barato de repintar */
   text-shadow:
     0 0 15px rgba(255, 255, 255, 0.3),
-    0 0 35px rgba(255, 255, 255, 0.15),
-    0 0 60px rgba(255, 255, 255, 0.08);
+    0 0 45px rgba(255, 255, 255, 0.17);
 }
 
 /* una letra por span; title.js cambia sus ejes (wght, wdth, slnt) según el puntero.
    Este es el estado "lejos", así el título se ve igual antes de que arranque el JS */
 .pressure-letter {
   display: inline-block;
+  /* cada letra en su capa: al mover el ratón solo se repintan las que cambian,
+     no el título entero con su brillo */
+  will-change: transform;
   font-variation-settings: 'wght' 100, 'wdth' 75, 'slnt' 0;
 }
 
@@ -37,8 +40,7 @@
   text-align: center;
   user-select: none;
   margin-top: -1.5rem;
-  opacity: 0;
-  animation: phraseIn 1.2s 0.6s ease forwards;
+  animation: phraseIn 1.2s 0.6s ease backwards;
 }
 @keyframes phraseIn {
   from { opacity: 0; transform: translateY(5px); }
@@ -46,9 +48,12 @@
 }
 
 /* animación al entrar a la página */
+/* "backwards" y no "forwards": al acabar no se queda pegado un filter: blur(0),
+   que obligaba a repintar el título como capa con filtro en cada cambio */
 #pasta { opacity: 0; }
 #pasta.entering {
-  animation: pastaIn 1s cubic-bezier(0.34, 1.2, 0.64, 1) forwards;
+  opacity: 1;
+  animation: pastaIn 1s cubic-bezier(0.34, 1.2, 0.64, 1) backwards;
 }
 @keyframes pastaIn {
   from { opacity: 0; transform: scale(1.28); filter: blur(14px); }
@@ -61,6 +66,6 @@
   to   { opacity: 1; }
 }
 @media (prefers-reduced-motion: reduce) {
-  #pasta.entering { animation: fadeIn 0.6s ease forwards; }
-  .pasta-phrase   { animation: fadeIn 1.2s 0.6s ease forwards; }
+  #pasta.entering { animation: fadeIn 0.6s ease backwards; }
+  .pasta-phrase   { animation: fadeIn 1.2s 0.6s ease backwards; }
 }

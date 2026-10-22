@@ -43,6 +43,8 @@ body {
   justify-content: center;
   align-items: center;
   will-change: transform;
+  /* lo que cambia dentro (ancho de las letras) no recalcula el resto de la página */
+  contain: layout style;
 }
 
 /* transición de página al entrar */
